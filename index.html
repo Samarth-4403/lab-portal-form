@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Lab Recruitment Data Collection Form</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="pag-styled-container">
+      <h1>
+        Lab Recruitment Data Collection Form
+        <br /><span style="font-size: 0.6em; font-weight: normal; color: #555">
+          Recruitment Status Tracking
+        </span>
+      </h1>
+
+      <form id="recruitmentForm" method="post" action="/submitLabRecruitment">
+        <div id="formView">
+        <!-- Success/Error Messages -->
+        <div
+          id="successMessage"
+          class="alert alert-success"
+          style="display: none"
+        >
+          <span>Form submitted successfully!</span>
+        </div>
+        <div id="errorMessage" class="alert alert-danger" style="display: none">
+          <span>Please fill in all required fields.</span>
+        </div>
+
+            <!-- Main Data Table Section -->
+            <div class="section-title">Lab Recruitment Information</div>
+            
+            <div class="table-responsive">
+                <table class="pag-table" id="recruitmentTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">S. No.</th>
+                            <th style="min-width: 200px;">Name of Lab <span class="required">*</span></th>
+                            <th style="min-width: 150px;">Designation</th>
+                            <th style="min-width: 120px;">No. of advertised posts</th>
+                            <th style="min-width: 180px;">No. of posts where application has been Screened by Screening committee</th>
+                            <th style="min-width: 200px;">No. of posts where Screening Result has been published & is in Public Domain</th>
+                            <th style="min-width: 220px;">No. of posts where interview has been conducted & Recommendations of Selection Committee yet to be endorsed by RAB</th>
+                            <th style="min-width: 200px;">No. of posts where recommendations of Selection Committee has been endorsed by RAB, CSIR</th>
+                            <th style="min-width: 180px;">No. of posts where appointment offers have been made</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Rows will be added dynamically - 3 rows per lab -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-controls">
+                <button type="button" class="btn-add" onclick="addLabEntry()">
+                    + Add Lab Entry
+                </button>
+                <button type="button" class="btn-delete" id="deleteLabBtn" onclick="deleteLastLab()" disabled>
+                    Delete Lab Entry
+                </button>
+            </div>
+
+        <!-- Preview Button -->
+        <div class="btn-container">
+          <button type="button" class="btn-primary" onclick="showPreview()">Preview Submission</button>
+        </div>
+      </form>
+    </div> <!-- End formView -->
+
+    <!-- In-Page Preview View (Hidden initially) -->
+    <div id="previewView" style="display: none;">
+        <div class="section-title" style="margin-top: 0; display: flex; justify-content: space-between; align-items: center;">
+            <span>Preview Your Submission</span>
+            <button type="button" class="btn-secondary" onclick="closePreview()" style="min-width: auto; padding: 0.5rem 1rem;">&larr; Back to Edit</button>
+        </div>
+        
+        <p style="color: #6b7280; margin-bottom: 1.5rem;">
+            Please review your data before final submission. Click <strong>Edit</strong> to make changes or <strong>Submit</strong> to finalize.
+        </p>
+        
+        <div class="table-responsive">
+            <table class="pag-table" id="previewTable">
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">S. No.</th>
+                        <th style="min-width: 200px;">Name of Lab</th>
+                        <th style="min-width: 150px;">Designation</th>
+                        <th style="min-width: 120px;">No. of advertised posts</th>
+                        <th style="min-width: 180px;">No. of posts where application has been Screened by Screening committee</th>
+                        <th style="min-width: 200px;">No. of posts where Screening Result has been published & is in Public Domain</th>
+                        <th style="min-width: 220px;">No. of posts where interview has been conducted & Recommendations of Selection Committee yet to be endorsed by RAB</th>
+                        <th style="min-width: 200px;">No. of posts where recommendations of Selection Committee has been endorsed by RAB, CSIR</th>
+                        <th style="min-width: 180px;">No. of posts where appointment offers have been made</th>
+                    </tr>
+                </thead>
+                <tbody id="previewTableBody">
+                    <!-- Populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="btn-container">
+            <button type="button" class="btn-secondary" onclick="closePreview()">Edit Data</button>
+            <button type="button" class="btn-primary" onclick="finalSubmit()" style="background-color: #10b981;">Confirm & Submit Form</button>
+        </div>
+    </div> <!-- End previewView -->
+
+    <!-- Lab Selection Modal -->
+    <div id="labSelectionModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Select Lab to Add</h3>
+                <button type="button" class="modal-close" onclick="closeLabSelectionModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: #6b7280; margin-bottom: 1rem;">
+                    Select a lab to add.
+                </p>
+                
+                <!-- Search Bar -->
+                <div style="margin-bottom: 1rem;">
+                    <input type="text" 
+                           id="labSearchInput" 
+                           placeholder="Search for a lab..." 
+                           style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 0.375rem; font-size: 1rem;"
+                           oninput="filterLabs()">
+                </div>
+                
+                <div class="lab-grid" id="labSelectionGrid">
+                    <!-- Labs will be populated by JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="closeLabSelectionModal()">Cancel</button>
+                <button type="button" class="btn-primary" onclick="confirmLabSelection()">Add Lab</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmationModal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Submission Successful</h3>
+          <button type="button" class="modal-close" onclick="closeModal()">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body">
+          <p style="color: #059669; font-size: 1.1rem; margin: 1rem 0">
+            ✓ Your lab recruitment data has been submitted successfully!
+          </p>
+          <p style="color: #6b7280; margin: 1rem 0">
+            The data has been saved to the database and will be processed
+            shortly.
+          </p>
+        </div>
+        <div class="modal-footer" style="margin-top: 1.5rem; text-align: right">
+          <button type="button" class="btn-primary" onclick="closeModal()">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="form.js"></script>
+  </body>
+</html>
