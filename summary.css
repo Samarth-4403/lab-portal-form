@@ -1,0 +1,366 @@
+/* Summary Page Styles - Matched to index.html Theme */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background-color: #ffffff;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  line-height: 1.6;
+}
+
+.pag-styled-container {
+  max-width: 1400px;
+  margin: 2rem auto;
+  padding: 2.5rem;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Header Section */
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #eaeaea;
+}
+
+.header-section h1 {
+  font-size: 2rem;
+  color: #1a1a1a;
+  margin: 0;
+  text-align: left;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Alert */
+.alert {
+  padding: 1rem;
+  border-radius: 0.375rem;
+  margin-bottom: 2rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.alert-danger {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #ef4444;
+}
+
+/* Summary Cards Symmetry - 2/3 distribution */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.summary-card {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 1.75rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.grand-total-card {
+  grid-column: span 3;
+  background-color: #f8fafc;
+  border: 2px solid #2563eb;
+}
+
+.participation-card {
+  grid-column: span 3;
+  background-color: #f0fdf4;
+  border: 1px solid #10b981;
+}
+
+.designation-card {
+  grid-column: span 2;
+}
+
+.summary-card:hover {
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.card-content h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6B7280;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.card-value {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.grand-total-card .card-value {
+  color: #2563eb;
+  font-size: 2.75rem;
+}
+
+.participation-card .card-value {
+  color: #059669;
+}
+
+.card-description {
+  font-size: 0.875rem;
+  color: #6B7280;
+}
+
+/* Section Title */
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2563eb;
+  margin: 2.5rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Table Styles Override/Enhance */
+.summary-table {
+  margin-top: 0;
+}
+
+.summary-table thead th {
+  background-color: #f9fafb;
+  color: #374151;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.summary-table tbody td:first-child {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.summary-table .designation-col {
+  color: #1e40af;
+  background-color: #f0f7ff;
+  text-align: right;
+  font-weight: 600;
+}
+
+.summary-table .total-col {
+  color: #065f46;
+  background-color: #f0fdf4;
+  font-weight: 700;
+  text-align: right;
+}
+
+.summary-designation {
+  background-color: #f9fafb;
+  color: #374151; /* Consistent professional dark gray */
+  font-weight: 500;
+}
+
+.total-row td {
+  border-top: 2px solid #e5e7eb;
+}
+
+/* Stage Summary Grid */
+.stage-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stage-summary-card {
+  background: #f9fafb;
+  border-radius: 6px;
+  padding: 1.25rem;
+  border: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.stage-card-header h4 {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.stage-card-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: #2563eb;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: "Inter", sans-serif;
+}
+
+.btn-primary:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: #ffffff;
+  color: #374151;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: "Inter", sans-serif;
+}
+
+.btn-secondary:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.btn-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px solid #e5e7eb;
+}
+
+/* Reuse main table styles */
+.pag-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  background: #fff;
+}
+
+.pag-table th, .pag-table td {
+  border: 1px solid #e5e7eb;
+  padding: 0.75rem;
+}
+
+/* Responsive and Print adjustments remain similar but cleaned up */
+@media (max-width: 768px) {
+  .pag-styled-container {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+}
+
+@media print {
+  .btn-container, .header-actions {
+    display: none !important;
+  }
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  body {
+    padding: 1rem;
+  }
+
+  .summary-container {
+    padding: 1.5rem;
+  }
+
+  .header-section h1 {
+    font-size: 1.75rem;
+  }
+
+  .summary-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .summary-table {
+    font-size: 0.85rem;
+  }
+
+  .summary-table thead th,
+  .summary-table tbody td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .card-value {
+    font-size: 2rem;
+  }
+
+  .grand-total-card .card-value {
+    font-size: 2.5rem;
+  }
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background: white;
+    padding: 0;
+  }
+
+  .summary-container {
+    box-shadow: none;
+    padding: 1rem;
+  }
+
+  .btn-back,
+  .action-buttons {
+    display: none !important;
+  }
+
+  .summary-card:hover,
+  .summary-table tbody tr:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .table-responsive {
+    overflow: visible;
+  }
+
+  .summary-table thead th {
+    position: static;
+  }
+}

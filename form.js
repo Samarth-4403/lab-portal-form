@@ -456,6 +456,51 @@ function closePreview() {
  * Handle official form submission (from Preview)
  */
 function finalSubmit() {
+    // Collect data to save for the summary page
+    const labsData = [];
+    const tableBody = document.getElementById('tableBody');
+    const rows = tableBody.querySelectorAll('tr');
+    
+    // Group rows by lab (3 rows per lab)
+    for (let i = 0; i < rows.length; i += 3) {
+        const labName = rows[i].dataset.labName;
+        const labEntry = {
+            labName: labName,
+            designations: []
+        };
+        
+        for (let j = 0; j < 3; j++) {
+            const row = rows[i + j];
+            if (!row) continue;
+            
+            const designation = row.querySelector('input[name="designation[]"]').value;
+            const advertised = row.querySelector('input[name="advertisedPosts[]"]').value || 0;
+            const screened = row.querySelector('input[name="screenedPosts[]"]').value || 0;
+            const published = row.querySelector('input[name="publishedPosts[]"]').value || 0;
+            const interviewed = row.querySelector('input[name="interviewedPosts[]"]').value || 0;
+            const endorsed = row.querySelector('input[name="endorsedPosts[]"]').value || 0;
+            const offers = row.querySelector('input[name="appointmentOffers[]"]').value || 0;
+            
+            labEntry.designations.push({
+                designation,
+                advertisedPosts: advertised,
+                screenedPosts: screened,
+                publishedPosts: published,
+                interviewedPosts: interviewed,
+                endorsedPosts: endorsed,
+                appointmentOffers: offers
+            });
+        }
+        labsData.push(labEntry);
+    }
+    
+    // Save to localStorage
+    const savedData = {
+        labs: labsData,
+        timestamp: new Date().toISOString()
+    };
+    localStorage.setItem('recruitmentFormData', JSON.stringify(savedData));
+
     // Show success modal
     showConfirmation();
 }
@@ -466,6 +511,16 @@ function finalSubmit() {
 function showConfirmation() {
     const modal = document.getElementById('confirmationModal');
     if (modal) {
+        // Update modal body to include summary link
+        const modalBody = modal.querySelector('.modal-body');
+        if (modalBody && !modalBody.innerHTML.includes('summary.html')) {
+            modalBody.innerHTML += `
+                <div style="margin-top: 2rem; padding: 1rem; background: #f0f7ff; border-radius: 8px; border: 1px solid #2563eb; text-align: center;">
+                    <p style="color: #1e40af; margin-bottom: 1rem; font-weight: 600;">Would you like to see a summary of your data?</p>
+                    <a href="summary.html" class="btn-primary" style="display: inline-block; text-decoration: none; background: #2563eb; color: white; padding: 0.75rem 1.5rem; border-radius: 6px;">View Data Summary</a>
+                </div>
+            `;
+        }
         modal.classList.add('active');
     }
 }
