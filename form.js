@@ -1,567 +1,354 @@
-// Lab Recruitment Form JavaScript
-
-// List of all CSIR labs (same as DPR/DIB forms) - SORTED ALPHABETICALLY
 const ALL_LABS = [
-    "CSIR - 4PI",
-    "CSIR - AMPRI",
-    "CSIR - CBRI",
-    "CSIR - CCMB",
-    "CSIR - CDRI",
-    "CSIR - CECRI",
-    "CSIR - CEERI",
-    "CSIR - CFTRI",
-    "CSIR - CGCRI",
-    "CSIR - CIMAP",
-    "CSIR - CIMFR",
-    "CSIR - CLRI",
-    "CSIR - CMC",
-    "CSIR - CMERI",
-    "CSIR - CRRI",
-    "CSIR - CSMCRI",
-    "CSIR - CSIO",
-    "CSIR - HQ",
-    "CSIR - IGIB",
-    "CSIR - IHBT",
-    "CSIR - IICB",
-    "CSIR - IICT",
-    "CSIR - IIIM",
-    "CSIR - IIP",
-    "CSIR - IITR",
-    "CSIR - IMMT",
-    "CSIR - IMTECH",
-    "CSIR - NAL",
-    "CSIR - NBRI",
-    "CSIR - NCL",
-    "CSIR - NEERI",
-    "CSIR - NEIST",
-    "CSIR - NGRI",
-    "CSIR - NIIST",
-    "CSIR - NIO",
-    "CSIR - NIScPR",
-    "CSIR - NML",
-    "CSIR - NPL",
-    "CSIR - SERC",
-    "CSIR - URDIP"
-].sort(); // Ensure alphabetical order
+    "CSIR - 4PI", "CSIR - AMPRI", "CSIR - CBRI", "CSIR - CCMB", "CSIR - CDRI",
+    "CSIR - CECRI", "CSIR - CEERI", "CSIR - CFTRI", "CSIR - CGCRI", "CSIR - CIMAP",
+    "CSIR - CIMFR", "CSIR - CLRI", "CSIR - CMC", "CSIR - CMERI", "CSIR - CRRI",
+    "CSIR - CSMCRI", "CSIR - CSIO", "CSIR - HQ", "CSIR - IGIB", "CSIR - IHBT",
+    "CSIR - IICB", "CSIR - IICT", "CSIR - IIIM", "CSIR - IIP", "CSIR - IITR",
+    "CSIR - IMMT", "CSIR - IMTECH", "CSIR - NAL", "CSIR - NBRI", "CSIR - NCL",
+    "CSIR - NEERI", "CSIR - NEIST", "CSIR - NGRI", "CSIR - NIIST", "CSIR - NIO",
+    "CSIR - NIScPR", "CSIR - NML", "CSIR - NPL", "CSIR - SERC", "CSIR - URDIP"
+].sort();
 
-// Fixed designations - each lab gets 3 rows
-const DESIGNATIONS = [
-    "Scientist L-11",
-    "Scientist L-12",
-    "Scientist L-13"
-];
+// ── HIERARCHY DATA ──────────────────────────────────────────
+const hierarchyData = {
+    "Scientific": {
+        "Group IV": [
+            { desig: "Junior Scientist", level: "L-10" },
+            { desig: "Scientist", level: "L-11" },
+            { desig: "Senior Scientist", level: "L-12" },
+            { desig: "Principle Scientist", level: "L-13" },
+            { desig: "Senior Principle Scientist", level: "L-13A" },
+            { desig: "Chief Scientist", level: "L-14" }
+        ]
+    },
+    "Technical": {
+        "Group III": [
+            { desig: "Technical Assistant", level: "L-6" },
+            { desig: "Technical Officer", level: "L-7" },
+            { desig: "Senior Technical Officer 1", level: "L-10" },
+            { desig: "Senior Technical Officer 2", level: "L-11" },
+            { desig: "Senior Technical Officer 3", level: "L-12" },
+            { desig: "Principle Technical Officer", level: "L-13" }
+        ],
+        "Group II": [
+            { desig: "Technical 1", level: "L-2" },
+            { desig: "Technical 2", level: "L-5" },
+            { desig: "Senior Technical 1", level: "L-6" },
+            { desig: "Senior Technical 2", level: "L-7" },
+            { desig: "Senior Technical 3", level: "L-8" }
+        ],
+        "Group I": [
+            { desig: "Lab. Attendant 1", level: "L-1" },
+            { desig: "Lab. Attendant 2", level: "L-2" },
+            { desig: "Lab. Assistant", level: "L-5" }
+        ]
+    },
+    "Admin": {
+        // Placeholder for future admin groups
+        "Admin (Placeholder)": [
+            { desig: "Admin Role 1", level: "L-10" }
+        ]
+    },
+    "Isolated": {
+        // Placeholder for future isolated groups
+        "Isolated (Placeholder)": [
+            { desig: "Isolated Role 1", level: "L-10" }
+        ]
+    }
+};
 
-// Track added labs
-let addedLabs = [];
-let labCounter = 0;
+let rowsData = [];
+let rowIdCounter = 0;
 
-// Initialize form - no rows initially, user must add labs
-document.addEventListener('DOMContentLoaded', function() {
-    updateDeleteButton();
+// ── INIT ───────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    const labSel = document.getElementById('inLab');
+    ALL_LABS.forEach(lab => {
+        const o = document.createElement('option');
+        o.value = lab; o.textContent = lab;
+        labSel.appendChild(o);
+    });
 });
 
-/**
- * Add a new lab (creates 3 rows - one for each designation)
- */
-function addLabEntry() {
-    // Show lab selection modal
-    showLabSelectionModal();
+// ── CASCADING DROPDOWN LOGIC ─────────────────────────────
+function onDeptChange() {
+    const dept = document.getElementById('inDept') ? document.getElementById('inDept').value : '';
+    const groupSel = document.getElementById('inGroup');
+    const desigSel = document.getElementById('inDesignation');
+    const levelInput = document.getElementById('inLevel');
+
+    // Reset lower levels
+    if (groupSel) {
+        groupSel.innerHTML = '<option value="">— Select Group —</option>';
+        groupSel.disabled = true;
+    }
+    if (desigSel) {
+        desigSel.innerHTML = '<option value="">— Select Designation —</option>';
+        desigSel.disabled = true;
+    }
+    if (levelInput) {
+        levelInput.value = '';
+    }
+
+    if (dept && hierarchyData[dept] && groupSel) {
+        groupSel.disabled = false;
+        Object.keys(hierarchyData[dept]).forEach(grp => {
+            const opt = document.createElement('option');
+            opt.value = grp;
+            opt.textContent = grp;
+            groupSel.appendChild(opt);
+        });
+    }
 }
 
-/**
- * Show lab selection modal
- */
-function showLabSelectionModal() {
-    const modal = document.getElementById('labSelectionModal');
-    const grid = document.getElementById('labSelectionGrid');
-    
-    // Clear previous selection
-    grid.innerHTML = '';
-    
-    // Clear search input
-    const searchInput = document.getElementById('labSearchInput');
-    if (searchInput) {
-        searchInput.value = '';
+function onGroupChange() {
+    const dept = document.getElementById('inDept') ? document.getElementById('inDept').value : '';
+    const groupSel = document.getElementById('inGroup');
+    const group = groupSel ? groupSel.value : '';
+    const desigSel = document.getElementById('inDesignation');
+    const levelInput = document.getElementById('inLevel');
+
+    // Reset lower levels
+    if (desigSel) {
+        desigSel.innerHTML = '<option value="">— Select Designation —</option>';
+        desigSel.disabled = true;
     }
-    
-    // Populate with available labs (exclude already added labs)
-    const availableLabs = ALL_LABS.filter(lab => !addedLabs.includes(lab));
-    
-    if (availableLabs.length === 0) {
-        grid.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 2rem;">All labs have been added.</p>';
+    if (levelInput) {
+        levelInput.value = '';
+    }
+
+    if (dept && group && hierarchyData[dept] && hierarchyData[dept][group] && desigSel) {
+        desigSel.disabled = false;
+        hierarchyData[dept][group].forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = opt.textContent = item.desig;
+            // Store level in dataset mapping
+            opt.dataset.level = item.level;
+            desigSel.appendChild(opt);
+        });
+    }
+}
+
+function onDesignationChange() {
+    const desigSel = document.getElementById('inDesignation');
+    const levelInput = document.getElementById('inLevel');
+
+    if (!desigSel || !levelInput) return;
+
+    const selectedOpt = desigSel.options[desigSel.selectedIndex];
+    if (selectedOpt && selectedOpt.dataset.level) {
+        levelInput.value = selectedOpt.dataset.level;
     } else {
-        availableLabs.forEach((lab, index) => {
-            const labId = `lab_${index}`;
-            const labOption = document.createElement('label');
-            labOption.className = 'lab-checkbox';
-            labOption.setAttribute('for', labId);
-            labOption.innerHTML = `
-                <input type="radio" name="selectedLab" id="${labId}" value="${lab}">
-                <span class="lab-name">${lab}</span>
-            `;
-            grid.appendChild(labOption);
-        });
+        levelInput.value = '';
     }
-    
-    modal.classList.add('active');
 }
 
-/**
- * Filter labs based on search input
- */
-function filterLabs() {
-    const searchInput = document.getElementById('labSearchInput');
-    const searchTerm = searchInput.value.toLowerCase().trim();
-    const grid = document.getElementById('labSelectionGrid');
-    const labCheckboxes = grid.querySelectorAll('.lab-checkbox');
-    
-    // Remove any existing "No results" message
-    const existingNoResults = grid.querySelector('.no-results-msg');
-    if (existingNoResults) {
-        existingNoResults.remove();
-    }
-    
-    let matchCount = 0;
-    
-    labCheckboxes.forEach(checkbox => {
-        const labName = checkbox.querySelector('.lab-name').textContent.toLowerCase();
-        if (labName.includes(searchTerm)) {
-            checkbox.style.display = 'flex';
-            matchCount++;
-        } else {
-            checkbox.style.display = 'none';
-        }
+// ── VALIDATE LIMITS ────────────────────────────────────
+function validateLimits() {
+    let pipTot = 0, rssTot = 0, vcTot = 0;
+    let pipLimit = 0, rssLimit = 0, vcLimit = 0;
+
+    rowsData.forEach(r => {
+        if (r.level === 'L-11') pipTot += r.mip;
+        if (r.level === 'L-12') rssTot += r.mip;
+        if (r.level === 'L-13') vcTot += r.mip;
+
+        pipLimit = Math.max(pipLimit, r.pipLimit || 0);
+        rssLimit = Math.max(rssLimit, r.rssLimit || 0);
+        vcLimit = Math.max(vcLimit, r.vcLimit || 0);
     });
-    
-    // Show message if no labs match the search
-    if (matchCount === 0 && labCheckboxes.length > 0) {
-        const noResults = document.createElement('p');
-        noResults.className = 'no-results-msg';
-        noResults.style.cssText = 'text-align: center; color: #ef4444; padding: 1rem; width: 100%; grid-column: 1 / -1;';
-        noResults.textContent = `No labs matching "${searchTerm}" found.`;
-        grid.appendChild(noResults);
-    }
-}
 
-/**
- * Close lab selection modal
- */
-function closeLabSelectionModal() {
-    const modal = document.getElementById('labSelectionModal');
-    modal.classList.remove('active');
-}
+    let msgs = [];
+    if (pipLimit > 0 && pipTot > pipLimit) msgs.push(`PIP Limit Exceeded (L-11): ${pipTot} / ${pipLimit}`);
+    if (rssLimit > 0 && rssTot > rssLimit) msgs.push(`RSS Limit Exceeded (L-12): ${rssTot} / ${rssLimit}`);
+    if (vcLimit > 0 && vcTot > vcLimit) msgs.push(`VC Limit Exceeded (L-13): ${vcTot} / ${vcLimit}`);
 
-/**
- * Confirm lab selection and add rows
- */
-function confirmLabSelection() {
-    const selectedRadio = document.querySelector('input[name="selectedLab"]:checked');
-    
-    if (!selectedRadio) {
-        alert('Please select a lab.');
-        return;
-    }
-    
-    const labName = selectedRadio.value;
-    
-    // Add the lab rows
-    addLabRows(labName);
-    
-    // Close the modal
-    closeLabSelectionModal();
-}
-
-/**
- * Add 3 rows for a selected lab (one for each designation)
- */
-function addLabRows(labName) {
-    labCounter++;
-    const tableBody = document.getElementById('tableBody');
-    const currentRowCount = tableBody.children.length;
-    
-    // Add the lab to tracking
-    addedLabs.push(labName);
-    
-    // Create lab dropdown options (for display purposes, will be readonly)
-    const labOptions = ALL_LABS.map(lab => 
-        `<option value="${lab}" ${lab === labName ? 'selected' : ''}>${lab}</option>`
-    ).join('');
-    
-    // Calculate the serial number for this lab group (each lab = 1 number)
-    const serialNumber = addedLabs.length;
-    
-    // Create 3 rows, one for each designation
-    DESIGNATIONS.forEach((designation, index) => {
-        const row = document.createElement('tr');
-        row.className = `lab-group-${labCounter}`;
-        row.dataset.labName = labName;
-        
-        // Only add serial number and lab name cells to the first row, with rowspan=3
-        const serialCell = index === 0 
-            ? `<td class="serial-number" rowspan="3" style="vertical-align: middle; text-align: center; font-weight: 600;">${serialNumber}</td>`
-            : '';
-        
-        const labCell = index === 0
-            ? `<td rowspan="3" style="vertical-align: middle;">
-                <select name="labName[]" 
-                        required 
-                        class="lab-select"
-                        disabled
-                        style="background-color: #f9fafb; cursor: not-allowed;">
-                    ${labOptions}
-                </select>
-                <input type="hidden" name="labName[]" value="${labName}">
-               </td>`
-            : '';
-        
-        // Hidden inputs for lab name in rows 2 and 3 (for form submission)
-        const hiddenLabInput = index > 0
-            ? `<input type="hidden" name="labName[]" value="${labName}">`
-            : '';
-        
-        row.innerHTML = `
-            ${serialCell}
-            ${labCell}
-            <td>
-                <input type="text" 
-                       value="${designation}" 
-                       readonly 
-                       class="designation-display"
-                       style="background-color: #f9fafb; cursor: default;">
-                <input type="hidden" name="designation[]" value="${designation}">
-                ${hiddenLabInput}
-            </td>
-            <td>
-                <input type="number" 
-                       name="advertisedPosts[]" 
-                       placeholder="0" 
-                       min="0" 
-                       value="0"
-                       class="number-input">
-            </td>
-            <td>
-                <input type="number" 
-                       name="screenedPosts[]" 
-                       placeholder="0" 
-                       min="0" 
-                       value="0"
-                       class="number-input">
-            </td>
-            <td>
-                <input type="number" 
-                       name="publishedPosts[]" 
-                       placeholder="0" 
-                       min="0" 
-                       value="0"
-                       class="number-input">
-            </td>
-            <td>
-                <input type="number" 
-                       name="interviewedPosts[]" 
-                       placeholder="0" 
-                       min="0" 
-                       value="0"
-                       class="number-input">
-            </td>
-            <td>
-                <input type="number" 
-                       name="endorsedPosts[]" 
-                       placeholder="0" 
-                       min="0" 
-                       value="0"
-                       class="number-input">
-            </td>
-            <td>
-                <input type="number" 
-                       name="appointmentOffers[]" 
-                       placeholder="0" 
-                       min="0" 
-                       value="0"
-                       class="number-input">
-            </td>
-        `;
-        
-        tableBody.appendChild(row);
-    });
-    
-    updateDeleteButton();
-}
-
-/**
- * Delete the last added lab (removes all 3 rows)
- */
-function deleteLastLab() {
-    const tableBody = document.getElementById('tableBody');
-    
-    if (addedLabs.length === 0) {
-        alert('No labs to delete.');
-        return;
-    }
-    
-    // Remove the last 3 rows (one lab = 3 rows) immediately without confirmation
-    for (let i = 0; i < 3; i++) {
-        const lastRow = tableBody.lastElementChild;
-        if (lastRow) {
-            lastRow.remove();
-        }
-    }
-    
-    // Remove from tracking
-    addedLabs.pop();
-    labCounter--;
-    
-    updateDeleteButton();
-}
-
-/**
- * Update delete button state
- */
-function updateDeleteButton() {
-    const deleteBtn = document.getElementById('deleteLabBtn');
-    if (deleteBtn) {
-        deleteBtn.disabled = addedLabs.length === 0;
-        deleteBtn.style.opacity = addedLabs.length === 0 ? '0.5' : '1';
-        deleteBtn.style.cursor = addedLabs.length === 0 ? 'not-allowed' : 'pointer';
-    }
-}
-
-/**
- * Validate form before submission
- */
-function validateForm() {
-    const tableBody = document.getElementById('tableBody');
-    const rows = tableBody.getElementsByTagName('tr');
-    let isValid = true;
-    let errorMessages = [];
-    
-    // Clear previous error states
-    document.querySelectorAll('.error-border').forEach(el => {
-        el.classList.remove('error-border');
-    });
-    
-    // Check if at least one lab exists
-    if (addedLabs.length === 0) {
-        errorMessages.push('Please add at least one lab entry.');
-        isValid = false;
-    }
-    
-    // Validate each row
-    for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
-        const rowNum = i + 1;
-        
-        // Get all number inputs in the row
-        const numberInputs = row.querySelectorAll('input[type="number"]');
-        
-        // Check if all numbers are valid (>= 0)
-        numberInputs.forEach(input => {
-            const value = parseFloat(input.value);
-            if (isNaN(value) || value < 0) {
-                input.classList.add('error-border');
-                if (isNaN(value)) {
-                    errorMessages.push(`Row ${rowNum}: All number fields are required.`);
-                } else {
-                    errorMessages.push(`Row ${rowNum}: All numbers must be 0 or greater.`);
-                }
-                isValid = false;
-            }
-        });
-    }
-    
-    // Display error messages
-    if (!isValid) {
-        const errorDiv = document.getElementById('errorMessage');
-        errorDiv.innerHTML = '<strong>Please fix the following errors:</strong><br>' + 
-                            errorMessages.join('<br>');
+    const errorDiv = document.getElementById('errorMessage');
+    if (msgs.length > 0) {
+        errorDiv.innerHTML = `<strong>Warning - Limits Exceeded!</strong><br/>` + msgs.join("<br/>");
+        errorDiv.className = 'alert alert-danger';
         errorDiv.style.display = 'block';
-        
-        // Scroll to error message
-        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
-        // Hide error message after 10 seconds
-        setTimeout(() => {
-            errorDiv.style.display = 'none';
-        }, 10000);
+        return false;
+    } else {
+        errorDiv.style.display = 'none';
+        return true;
     }
-    
-    return isValid;
 }
 
-/**
- * Show preview (in-page view) with read-only table
- */
-function showPreview() {
-    // Validate form first
-    if (!validateForm()) {
+// ── ADD ENTRY ───────────────────────────────────────────
+function addRowToTable() {
+    const lab = document.getElementById('inLab').value;
+    const pipLimit = parseInt(document.getElementById('inPipLimit').value, 10) || 0;
+    const rssLimit = parseInt(document.getElementById('inRssLimit').value, 10) || 0;
+    const vcLimit = parseInt(document.getElementById('inVcLimit').value, 10) || 0;
+
+    const dept = document.getElementById('inDept').value;
+    const group = document.getElementById('inGroup').value;
+    const level = document.getElementById('inLevel').value;
+    const desig = document.getElementById('inDesignation').value;
+    const gender = document.getElementById('inGender').value;
+    const cat = document.getElementById('inCategory').value;
+
+    if (!lab || !dept || !group || !desig || !gender || !cat) {
+        showError("Please fill all required (*) fields in the side panel.");
         return;
     }
-    
-    const tableBody = document.getElementById('tableBody');
-    const previewTableBody = document.getElementById('previewTableBody');
-    previewTableBody.innerHTML = '';
-    
-    // Collect data from the main table
-    const rows = tableBody.querySelectorAll('tr');
-    
-    rows.forEach(row => {
-        const previewRow = document.createElement('tr');
-        
-        // Create the cells for preview
-        const serialCell = row.querySelector('.serial-number');
-        const labSelect = row.querySelector('.lab-select');
-        const designationInput = row.querySelector('input[name="designation[]"]');
-        const advertised = row.querySelector('input[name="advertisedPosts[]"]').value || '0';
-        const screened = row.querySelector('input[name="screenedPosts[]"]').value || '0';
-        const published = row.querySelector('input[name="publishedPosts[]"]').value || '0';
-        const interviewed = row.querySelector('input[name="interviewedPosts[]"]').value || '0';
-        const endorsed = row.querySelector('input[name="endorsedPosts[]"]').value || '0';
-        const offers = row.querySelector('input[name="appointmentOffers[]"]').value || '0';
-        
-        // Handle rowspan for first row of group
-        const serialHtml = serialCell ? `<td rowspan="3" class="serial-number" style="vertical-align: middle;">${serialCell.textContent}</td>` : '';
-        const labHtml = serialCell ? `<td rowspan="3" style="vertical-align: middle; font-weight: 600; background-color: #f8fafc; color: #1e293b;">${labSelect.options[labSelect.selectedIndex] ? labSelect.options[labSelect.selectedIndex].text : ''}</td>` : '';
-        
-        previewRow.innerHTML = `
-            ${serialHtml}
-            ${labHtml}
-            <td class="preview-designation-cell">${designationInput.value}</td>
-            <td class="preview-number-cell">${advertised}</td>
-            <td class="preview-number-cell">${screened}</td>
-            <td class="preview-number-cell">${published}</td>
-            <td class="preview-number-cell">${interviewed}</td>
-            <td class="preview-number-cell">${endorsed}</td>
-            <td class="preview-number-cell">${offers}</td>
-        `;
-        
-        previewTableBody.appendChild(previewRow);
-    });
-    
-    // Toggle views
-    document.getElementById('formView').style.display = 'none';
-    document.getElementById('previewView').style.display = 'block';
-    
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
 
-/**
- * Close preview and return to form
- */
-function closePreview() {
-    document.getElementById('previewView').style.display = 'none';
-    document.getElementById('formView').style.display = 'block';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-/**
- * Handle official form submission (from Preview)
- */
-function finalSubmit() {
-    // Collect data to save for the summary page
-    const labsData = [];
-    const tableBody = document.getElementById('tableBody');
-    const rows = tableBody.querySelectorAll('tr');
-    
-    // Group rows by lab (3 rows per lab)
-    for (let i = 0; i < rows.length; i += 3) {
-        const labName = rows[i].dataset.labName;
-        const labEntry = {
-            labName: labName,
-            designations: []
-        };
-        
-        for (let j = 0; j < 3; j++) {
-            const row = rows[i + j];
-            if (!row) continue;
-            
-            const designation = row.querySelector('input[name="designation[]"]').value;
-            const advertised = row.querySelector('input[name="advertisedPosts[]"]').value || 0;
-            const screened = row.querySelector('input[name="screenedPosts[]"]').value || 0;
-            const published = row.querySelector('input[name="publishedPosts[]"]').value || 0;
-            const interviewed = row.querySelector('input[name="interviewedPosts[]"]').value || 0;
-            const endorsed = row.querySelector('input[name="endorsedPosts[]"]').value || 0;
-            const offers = row.querySelector('input[name="appointmentOffers[]"]').value || 0;
-            
-            labEntry.designations.push({
-                designation,
-                advertisedPosts: advertised,
-                screenedPosts: screened,
-                publishedPosts: published,
-                interviewedPosts: interviewed,
-                endorsedPosts: endorsed,
-                appointmentOffers: offers
-            });
-        }
-        labsData.push(labEntry);
-    }
-    
-    // Save to localStorage
-    const savedData = {
-        labs: labsData,
-        timestamp: new Date().toISOString()
+    const row = {
+        id: ++rowIdCounter,
+        lab, pipLimit, rssLimit, vcLimit, dept, group, level, desig, gender, cat,
+        // Initialize numeric columns
+        mip: 0, sister: 0, dg: 0, trans: 0, oh: 0, hh: 0, vh: 0, de: 0, exsm: 0, mc: 0
     };
-    localStorage.setItem('recruitmentFormData', JSON.stringify(savedData));
 
-    // Show success modal
-    showConfirmation();
+    rowsData.push(row);
+    renderTable();
+
+    document.getElementById('errorMessage').style.display = 'none';
 }
 
-/**
- * Show confirmation modal
- */
-function showConfirmation() {
-    const modal = document.getElementById('confirmationModal');
-    if (modal) {
-        // Update modal body to include summary link
-        const modalBody = modal.querySelector('.modal-body');
-        if (modalBody && !modalBody.innerHTML.includes('summary.html')) {
-            modalBody.innerHTML += `
-                <div style="margin-top: 2rem; padding: 1rem; background: #f0f7ff; border-radius: 8px; border: 1px solid #2563eb; text-align: center;">
-                    <p style="color: #1e40af; margin-bottom: 1rem; font-weight: 600;">Would you like to see a summary of your data?</p>
-                    <a href="summary.html" class="btn-primary" style="display: inline-block; text-decoration: none; background: #2563eb; color: white; padding: 0.75rem 1.5rem; border-radius: 6px;">View Data Summary</a>
-                </div>
-            `;
-        }
-        modal.classList.add('active');
+// ── RENDER COMPACT DYNAMIC TABLE ────────────────────────
+function renderTable() {
+    const tbody = document.getElementById('tableBody');
+    const tfoot = document.getElementById('tableFoot');
+    tbody.innerHTML = '';
+
+    if (rowsData.length === 0) {
+        tbody.innerHTML = '<tr id="emptyPlaceholder"><td colspan="22" style="text-align:center; padding:2rem; color:#6b7280; font-style:italic;">No rows added yet. Use the panel above to add rows.</td></tr>';
+        tfoot.style.display = 'none';
+        validateLimits();
+        return;
+    }
+
+    tfoot.style.display = 'table-row-group';
+
+    // Totals
+    let tmip = 0, tsis = 0, tdg = 0, ttr = 0, toh = 0, thh = 0, tvh = 0, tde = 0, tex = 0, tmc = 0;
+
+    rowsData.forEach((r, idx) => {
+        const tr = document.createElement('tr');
+
+        tr.innerHTML = `
+            <td>${idx + 1}</td>
+            <td class="td-text">${r.lab}</td>
+            <td class="td-text">${r.dept}</td>
+            <td>${r.group}</td>
+            <td>${r.level}</td>
+            <td class="td-text">${r.desig}</td>
+            <td>${r.gender}</td>
+            <td>${r.cat}</td>
+            
+            <td>${r.pipLimit || '-'}</td>
+            <td>${r.rssLimit || '-'}</td>
+            <td>${r.vcLimit || '-'}</td>
+            
+            <!-- Number inputs mapped to state -->
+            <td><input type="number" class="ni-input" min="0" value="${r.mip}" oninput="updateVal(${r.id}, 'mip', this.value)"></td>
+            <td><input type="number" class="ni-input" min="0" value="${r.sister}" oninput="updateVal(${r.id}, 'sister', this.value)"></td>
+            <td><input type="number" class="ni-input" min="0" value="${r.dg}" oninput="updateVal(${r.id}, 'dg', this.value)"></td>
+            <td><input type="number" class="ni-input" min="0" value="${r.trans}" oninput="updateVal(${r.id}, 'trans', this.value)"></td>
+            
+            <td><input type="number" class="ni-input" min="0" value="${r.oh}" oninput="updateVal(${r.id}, 'oh', this.value)"></td>
+            <td><input type="number" class="ni-input" min="0" value="${r.hh}" oninput="updateVal(${r.id}, 'hh', this.value)"></td>
+            <td><input type="number" class="ni-input" min="0" value="${r.vh}" oninput="updateVal(${r.id}, 'vh', this.value)"></td>
+            <td><input type="number" class="ni-input" min="0" value="${r.de}" oninput="updateVal(${r.id}, 'de', this.value)"></td>
+            
+            <td><input type="number" class="ni-input" min="0" value="${r.exsm}" oninput="updateVal(${r.id}, 'exsm', this.value)"></td>
+            <td><input type="number" class="ni-input" min="0" value="${r.mc}" oninput="updateVal(${r.id}, 'mc', this.value)"></td>
+        `;
+
+        tmip += r.mip; tsis += r.sister; tdg += r.dg; ttr += r.trans;
+        toh += r.oh; thh += r.hh; tvh += r.vh; tde += r.de;
+        tex += r.exsm; tmc += r.mc;
+
+        tbody.appendChild(tr);
+    });
+
+    document.getElementById('tot_mip').textContent = tmip;
+    document.getElementById('tot_sis').textContent = tsis;
+    document.getElementById('tot_dg').textContent = tdg;
+    document.getElementById('tot_trans').textContent = ttr;
+    document.getElementById('tot_oh').textContent = toh;
+    document.getElementById('tot_hh').textContent = thh;
+    document.getElementById('tot_vh').textContent = tvh;
+    document.getElementById('tot_de').textContent = tde;
+    document.getElementById('tot_exsm').textContent = tex;
+    document.getElementById('tot_mc').textContent = tmc;
+
+    validateLimits();
+}
+
+// ── UPDATE VAL ──────────────────────────────────────────
+function updateVal(id, field, val) {
+    const row = rowsData.find(r => r.id === id);
+    if (row) {
+        row[field] = parseInt(val, 10) || 0;
+
+        // Re-calc totals immediately without re-rendering everything
+        let tmip = 0, tsis = 0, tdg = 0, ttr = 0, toh = 0, thh = 0, tvh = 0, tde = 0, tex = 0, tmc = 0;
+        rowsData.forEach(r => {
+            tmip += r.mip; tsis += r.sister; tdg += r.dg; ttr += r.trans;
+            toh += r.oh; thh += r.hh; tvh += r.vh; tde += r.de;
+            tex += r.exsm; tmc += r.mc;
+        });
+
+        document.getElementById('tot_mip').textContent = tmip;
+        document.getElementById('tot_sis').textContent = tsis;
+        document.getElementById('tot_dg').textContent = tdg;
+        document.getElementById('tot_trans').textContent = ttr;
+        document.getElementById('tot_oh').textContent = toh;
+        document.getElementById('tot_hh').textContent = thh;
+        document.getElementById('tot_vh').textContent = tvh;
+        document.getElementById('tot_de').textContent = tde;
+        document.getElementById('tot_exsm').textContent = tex;
+        document.getElementById('tot_mc').textContent = tmc;
+
+        if (field === 'mip') validateLimits();
     }
 }
 
-/**
- * Close confirmation modal
- */
+// ── DELETE ROW ──────────────────────────────────────────
+function deleteRow(id) {
+    rowsData = rowsData.filter(r => r.id !== id);
+    renderTable();
+}
+
+function removeLastRow() {
+    if (rowsData.length > 0) {
+        rowsData.pop();
+        renderTable();
+    } else {
+        showError("No rows to remove.");
+    }
+}
+
+// ── PREVENT NEGATIVES ──────────────────────────────────
+document.addEventListener('input', function (e) {
+    if (e.target.type === 'number' && parseFloat(e.target.value) < 0) {
+        e.target.value = 0;
+    }
+});
+
+// ── SUBMIT / MESSAGES ───────────────────────────────────
+function showError(msg) {
+    const e = document.getElementById('errorMessage');
+    e.innerHTML = `<strong>Error:</strong> ${msg}`;
+    e.style.display = 'block';
+    setTimeout(() => { e.style.display = 'none'; }, 6000);
+}
+
+function submitForm() {
+    if (rowsData.length === 0) {
+        showError("You must add at least one row to submit.");
+        return;
+    }
+    if (!validateLimits()) {
+        showError("Sanctioned post limits are exceeded. Please check the warnings above before submitting.");
+        return;
+    }
+    document.getElementById('confirmationModal').classList.add('active');
+}
+
 function closeModal() {
-    const modal = document.getElementById('confirmationModal');
-    if (modal) {
-        modal.classList.remove('active');
-    }
+    document.getElementById('confirmationModal').classList.remove('active');
 }
-
-/**
- * Click outside listeners for all modals
- */
-document.addEventListener('click', function(event) {
-    const confirmationModal = document.getElementById('confirmationModal');
-    const labSelectionModal = document.getElementById('labSelectionModal');
-    const previewModal = document.getElementById('previewModal');
-    
-    if (event.target === confirmationModal) {
-        closeModal();
-    }
-    if (event.target === labSelectionModal) {
-        closeLabSelectionModal();
-    }
-    if (event.target === previewModal) {
-        closePreview();
-    }
-});
-
-/**
- * Prevent negative numbers 
- */
-document.addEventListener('input', function(event) {
-    if (event.target.type === 'number') {
-        if (event.target.value < 0) {
-            event.target.value = 0;
-        }
-    }
-});
