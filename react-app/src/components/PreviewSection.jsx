@@ -1,27 +1,10 @@
 import React from 'react';
 
-export default function PreviewSection({ labs, onEdit, onSubmit }) {
+export default function PreviewSection({ entries, onEdit, onSubmit }) {
     
     const handleConfirm = () => {
-        // Prepare data for saving/submission
-        // Keeping logic similar to legacy `finalSubmit`
-        // In a real app we might send this to a backend API
-        
-        const simplifiedData = labs.map(lab => ({
-            labName: lab.name,
-            designations: lab.rows.map(row => ({
-                designation: row.designation,
-                advertisedPosts: row.advertisedPosts,
-                screenedPosts: row.screenedPosts,
-                publishedPosts: row.publishedPosts,
-                interviewedPosts: row.interviewedPosts,
-                yetToBeEndorsedPosts: row.yetToBeEndorsedPosts,
-                endorsedPosts: row.endorsedPosts,
-                appointmentOffers: row.appointmentOffers
-            }))
-        }));
-
-        onSubmit(simplifiedData);
+        // Data is already in the correct flat format in entries
+        onSubmit(entries);
     };
 
     return (
@@ -39,43 +22,40 @@ export default function PreviewSection({ labs, onEdit, onSubmit }) {
                 <table className="pag-table" id="previewTable">
                     <thead>
                         <tr>
-                            <th style={{ width: '60px' }}>S. No.</th>
-                            <th style={{ minWidth: '200px' }}>Name of Lab</th>
-                            <th style={{ minWidth: '150px' }}>Designation</th>
-                            <th style={{ minWidth: '120px' }}>No. of advertised posts</th>
-                            <th style={{ minWidth: '180px' }}>No. of posts where application has been Screened by Screening committee</th>
-                            <th style={{ minWidth: '200px' }}>No. of posts where Screening Result has been published & is in Public Domain</th>
-                            <th style={{ minWidth: '180px' }}>No. of posts where interview has been conducted</th>
-                            <th style={{ minWidth: '200px' }}>Recommendations of Selection Committee yet to be endorsed by RAB</th>
-                            <th style={{ minWidth: '200px' }}>No. of posts where recommendations of Selection Committee has been endorsed by RAB, CSIR</th>
-                            <th style={{ minWidth: '180px' }}>No. of posts where appointment offers have been made</th>
+                            <th style={{ width: '50px' }}>S. No.</th>
+                            <th style={{ minWidth: '150px' }}>Lab</th>
+                            <th style={{ minWidth: '120px' }}>Dept</th>
+                            <th style={{ minWidth: '100px' }}>Group</th>
+                            <th style={{ minWidth: '120px' }}>Designation</th>
+                            <th style={{ minWidth: '80px' }}>Gender</th>
+                            <th style={{ minWidth: '100px' }}>Category</th>
+                            <th style={{ minWidth: '80px' }}>Adv.</th>
+                            <th style={{ minWidth: '80px' }}>Scr.</th>
+                            <th style={{ minWidth: '80px' }}>Pub.</th>
+                            <th style={{ minWidth: '80px' }}>Int.</th>
+                            <th style={{ minWidth: '80px' }}>Yet.</th>
+                            <th style={{ minWidth: '80px' }}>End.</th>
+                            <th style={{ minWidth: '80px' }}>Off.</th>
                         </tr>
                     </thead>
                     <tbody id="previewTableBody">
-                        {labs.map((labEntry, index) => (
-                            <React.Fragment key={labEntry.name}>
-                                {labEntry.rows.map((row, rowIndex) => (
-                                    <tr key={`${labEntry.name}-preview-${rowIndex}`}>
-                                        {/* Serial Number & Name - only on first row */}
-                                        {rowIndex === 0 && (
-                                            <>
-                                                <td rowSpan={3} className="serial-number" style={{ verticalAlign: 'middle' }}>{index + 1}</td>
-                                                <td rowSpan={3} style={{ verticalAlign: 'middle', fontWeight: 600, backgroundColor: '#f8fafc', color: '#1e293b' }}>
-                                                    {labEntry.name}
-                                                </td>
-                                            </>
-                                        )}
-                                        <td className="preview-designation-cell">{row.designation}</td>
-                                        <td className="preview-number-cell">{row.advertisedPosts}</td>
-                                        <td className="preview-number-cell">{row.screenedPosts}</td>
-                                        <td className="preview-number-cell">{row.publishedPosts}</td>
-                                        <td className="preview-number-cell">{row.interviewedPosts}</td>
-                                        <td className="preview-number-cell">{row.yetToBeEndorsedPosts}</td>
-                                        <td className="preview-number-cell">{row.endorsedPosts}</td>
-                                        <td className="preview-number-cell">{row.appointmentOffers}</td>
-                                    </tr>
-                                ))}
-                            </React.Fragment>
+                        {entries.map((entry, index) => (
+                            <tr key={index}>
+                                <td className="serial-number" style={{ textAlign: 'center' }}>{index + 1}</td>
+                                <td style={{ fontWeight: 600, backgroundColor: '#f8fafc' }}>{entry.lab}</td>
+                                <td>{entry.dept}</td>
+                                <td>{entry.group}</td>
+                                <td>{entry.designation}</td>
+                                <td>{entry.gender}</td>
+                                <td>{entry.category}</td>
+                                <td className="preview-number-cell">{entry.advertisedPosts}</td>
+                                <td className="preview-number-cell">{entry.screenedPosts}</td>
+                                <td className="preview-number-cell">{entry.publishedPosts}</td>
+                                <td className="preview-number-cell">{entry.interviewedPosts}</td>
+                                <td className="preview-number-cell">{entry.yetToBeEndorsedPosts}</td>
+                                <td className="preview-number-cell">{entry.endorsedPosts}</td>
+                                <td className="preview-number-cell">{entry.appointmentOffers}</td>
+                            </tr>
                         ))}
                     </tbody>
                 </table>
@@ -88,3 +68,4 @@ export default function PreviewSection({ labs, onEdit, onSubmit }) {
         </div>
     );
 }
+

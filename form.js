@@ -19,6 +19,7 @@ const ALL_LABS = [
     "CSIR - CRRI",
     "CSIR - CSMCRI",
     "CSIR - CSIO",
+    "CSIR - HQ",
     "CSIR - IGIB",
     "CSIR - IHBT",
     "CSIR - IICB",

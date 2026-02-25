@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 function loadFormData() {
   try {
-    const savedData = localStorage.getItem('recruitmentFormData');
+    const kdData = localStorage.getItem('recruitmentFormData');
     if (savedData) {
       const parsedData = JSON.parse(savedData);
       formData.labs = parsedData.labs || [];

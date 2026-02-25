@@ -1,33 +1,45 @@
 import React from 'react';
-import LabRowGroup from './LabRowGroup';
+import EntryRow from './EntryRow';
 
-export default function LabTable({ labs, onLabChange }) {
+export default function LabTable({ entries, onEntryChange }) {
     return (
         <div className="table-responsive">
             <table className="pag-table" id="recruitmentTable">
                 <thead>
                     <tr>
-                        <th style={{ width: '60px' }}>S. No.</th>
-                        <th style={{ minWidth: '200px' }}>Name of Lab <span className="required">*</span></th>
-                        <th style={{ minWidth: '150px' }}>Designation</th>
-                        <th style={{ minWidth: '120px' }}>No. of advertised posts</th>
-                        <th style={{ minWidth: '180px' }}>No. of posts where application has been Screened by Screening committee</th>
-                        <th style={{ minWidth: '200px' }}>No. of posts where Screening Result has been published & is in Public Domain</th>
-                        <th style={{ minWidth: '180px' }}>No. of posts where interview has been conducted</th>
-                        <th style={{ minWidth: '200px' }}>Recommendations of Selection Committee yet to be endorsed by RAB</th>
-                        <th style={{ minWidth: '200px' }}>No. of posts where recommendations of Selection Committee has been endorsed by RAB, CSIR</th>
-                        <th style={{ minWidth: '180px' }}>No. of posts where appointment offers have been made</th>
+                        <th style={{ width: '50px' }}>S. No.</th>
+                        <th>Lab</th>
+                        <th>Dept</th>
+                        <th>Group</th>
+                        <th>Designation</th>
+                        <th>Gender</th>
+                        <th>Category</th>
+                        <th>Adv. Posts</th>
+                        <th>Screened</th>
+                        <th>Published</th>
+                        <th>Interviewed</th>
+                        <th>Yet to Endorse</th>
+                        <th>Endorsed</th>
+                        <th>Offers</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    {labs.map((labEntry, index) => (
-                        <LabRowGroup 
-                            key={labEntry.name}
-                            labEntry={labEntry}
-                            serialNumber={index + 1}
-                            onChange={onLabChange}
-                        />
-                    ))}
+                    {entries.length === 0 ? (
+                        <tr>
+                            <td colSpan="14" style={{ textAlign: 'center', padding: '3rem 2rem', color: '#94a3b8', fontStyle: 'italic' }}>
+                                No entries added yet. Select criteria above and click <strong style={{ color: '#10b981' }}>+ Add Entry</strong> to begin.
+                            </td>
+                        </tr>
+                    ) : (
+                        entries.map((entry, index) => (
+                            <EntryRow 
+                                key={index}
+                                entry={entry}
+                                index={index}
+                                onChange={onEntryChange}
+                            />
+                        ))
+                    )}
                 </tbody>
             </table>
         </div>
