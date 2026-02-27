@@ -3,161 +3,60 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Recruitment Data Summary - CSIR Labs</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+    <title>Annexure-A Data Summary - CSIR Labs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="summary.css" />
   </head>
   <body>
     <div class="pag-styled-container">
-      <!-- Header Section -->
+      <!-- Header -->
       <div class="header-section">
         <h1>
-          Lab Recruitment Data Summary
-          <br /><span style="font-size: 0.6em; font-weight: normal; color: #555">
-            Comprehensive Analysis Report
+          Annexure - A Summary
+          <br /><span style="font-size: 0.55em; font-weight: normal; color: #64748b">
+            CSIR Lab Manpower Data Report
           </span>
         </h1>
       </div>
 
-      <!-- Alert Message (Hidden by default) -->
+      <!-- No Data Alert -->
       <div id="noDataAlert" class="alert alert-danger" style="display: none">
         <span>No data available. Please fill out the form first.</span>
       </div>
 
-      <!-- Summary Cards Section -->
+      <!-- Summary Cards -->
       <div id="summaryCards" class="summary-cards">
-        <!-- Grand Total Card -->
-        <div class="summary-card grand-total-card">
+        <div class="summary-card pip-card">
           <div class="card-content">
-            <h3>Grand Total</h3>
-            <div class="card-value" id="grandTotalValue">0</div>
-            <p class="card-description">Total posts across all labs and designations</p>
+            <h3>Total PIP</h3>
+            <div class="card-value" id="totalPIPValue">0</div>
+            <p class="card-description">Persons In Position across all entries</p>
           </div>
         </div>
 
-        <!-- Lab Participation Card -->
         <div class="summary-card participation-card">
           <div class="card-content">
-            <h3>Labs Participation</h3>
-            <div class="card-value" id="labParticipationValue">0 / 0</div>
-            <p class="card-description">Number of labs that have submitted data</p>
+            <h3>Labs Reporting</h3>
+            <div class="card-value" id="labParticipationValue">0</div>
+            <p class="card-description">Number of unique labs with data</p>
           </div>
         </div>
 
-        <!-- L-11 Total Card -->
-        <div class="summary-card designation-card">
+        <div class="summary-card entries-card">
           <div class="card-content">
-            <h3>Scientist L-11</h3>
-            <div class="card-value" id="l11TotalValue">0</div>
-            <p class="card-description">Total L-11 posts across all labs</p>
-          </div>
-        </div>
-
-        <!-- L-12 Total Card -->
-        <div class="summary-card designation-card">
-          <div class="card-content">
-            <h3>Scientist L-12</h3>
-            <div class="card-value" id="l12TotalValue">0</div>
-            <p class="card-description">Total L-12 posts across all labs</p>
-          </div>
-        </div>
-
-        <!-- L-13 Total Card -->
-        <div class="summary-card designation-card">
-          <div class="card-content">
-            <h3>Scientist L-13</h3>
-            <div class="card-value" id="l13TotalValue">0</div>
-            <p class="card-description">Total L-13 posts across all labs</p>
+            <h3>Total Entries</h3>
+            <div class="card-value" id="totalEntriesValue">0</div>
+            <p class="card-description">Total rows of data submitted</p>
           </div>
         </div>
       </div>
 
-
-      <!-- Detailed Breakdown Section -->
-      <div class="section-title">Detailed Stage-wise Breakdown</div>
-      <div class="table-responsive">
-        <table class="pag-table summary-table detailed-table" id="detailedTable">
-          <thead>
-            <tr>
-              <th rowspan="2" style="width: 60px;">S. No.</th>
-              <th rowspan="2">Lab Name</th>
-              <th rowspan="2">Designation</th>
-              <th colspan="7" class="stage-header" style="text-align: center; border-bottom: 2px solid #e5e7eb;">Full Recruitment Cycle</th>
-            </tr>
-            <tr>
-              <th class="stage-col">No. of advertised posts</th>
-              <th class="stage-col">No. of posts where application has been Screened by Screening committee</th>
-              <th class="stage-col">No. of posts where Screening Result has been published & is in Public Domain</th>
-              <th class="stage-col">No. of posts where interview has been conducted</th>
-              <th class="stage-col">Recommendations of Selection Committee yet to be endorsed by RAB</th>
-              <th class="stage-col">No. of posts where recommendations of Selection Committee has been endorsed by RAB, CSIR</th>
-              <th class="stage-col">No. of posts where appointment offers have been made</th>
-            </tr>
-          </thead>
-          <tbody id="detailedTableBody">
-            <!-- Populated by JavaScript -->
-          </tbody>
-        </table>
+      <!-- Group-wise Summary Cards -->
+      <div class="section-title">Group-wise Summary</div>
+      <div id="groupSummaryCards" class="stage-summary-grid">
       </div>
 
-      <!-- Stage-wise Summary Section -->
-      <div class="section-title">Stage-wise Summary</div>
-      <div class="stage-summary-grid">
-        <div class="stage-summary-card">
-          <div class="stage-card-header">
-            <h4>No. of advertised posts</h4>
-          </div>
-          <div class="stage-card-value" id="stageAdvertised">0</div>
-        </div>
-
-        <div class="stage-summary-card">
-          <div class="stage-card-header">
-            <h4>No. of posts where application has been Screened by Screening committee</h4>
-          </div>
-          <div class="stage-card-value" id="stageScreened">0</div>
-        </div>
-
-        <div class="stage-summary-card">
-          <div class="stage-card-header">
-            <h4>No. of posts where Screening Result has been published & is in Public Domain</h4>
-          </div>
-          <div class="stage-card-value" id="stagePublished">0</div>
-        </div>
-
-        <div class="stage-summary-card">
-          <div class="stage-card-header">
-            <h4>No. of posts where interview has been conducted</h4>
-          </div>
-          <div class="stage-card-value" id="stageInterviewed">0</div>
-        </div>
-
-        <div class="stage-summary-card">
-          <div class="stage-card-header">
-            <h4>Recommendations of Selection Committee yet to be endorsed by RAB</h4>
-          </div>
-          <div class="stage-card-value" id="stageYetToBeEndorsed">0</div>
-        </div>
-
-        <div class="stage-summary-card">
-          <div class="stage-card-header">
-            <h4>No. of posts where recommendations of Selection Committee has been endorsed by RAB, CSIR</h4>
-          </div>
-          <div class="stage-card-value" id="stageEndorsed">0</div>
-        </div>
-
-        <div class="stage-summary-card">
-          <div class="stage-card-header">
-            <h4>No. of posts where appointment offers have been made</h4>
-          </div>
-          <div class="stage-card-value" id="stageOffers">0</div>
-        </div>
-      </div>
-
-      <!-- Action Buttons -->
+      <!-- Actions -->
       <div class="btn-container">
         <button type="button" class="btn-secondary" onclick="printSummary()">
           Print Summary

@@ -1,4 +1,4 @@
-// List of all CSIR labs (same as DPR/DIB forms) - SORTED ALPHABETICALLY
+// List of all CSIR labs - SORTED ALPHABETICALLY
 export const ALL_LABS = [
     "CSIR - 4PI",
     "CSIR - AMPRI",
@@ -42,7 +42,7 @@ export const ALL_LABS = [
     "CSIR - URDIP"
 ].sort();
 
-// New Dimensions
+// Departments
 export const DEPARTMENTS = [
     "Scientific",
     "Technical",
@@ -57,39 +57,71 @@ export const GROUPS_BY_DEPT = {
     "Isolated": ["N/A"]
 };
 
-export const GENDERS = ["Male", "Female", "Others"];
-
-export const CATEGORIES = ["General", "EWS", "OBC", "SC", "ST", "PwBD"];
-
-// Designations by Group (with Pay Levels)
+// Designations by Group
 export const DESIGNATIONS_BY_GROUP = {
     "Group IV": [
-        "Junior Scientist - PayLevel 10",
-        "Scientist - PayLevel 11",
-        "Senior Scientist - PayLevel 12",
-        "Principal Scientist - PayLevel 13",
-        "Senior Principal Scientist - PayLevel 13A",
-        "Chief Scientist - PayLevel 14"
+        { name: "Junior Scientist", level: "L-10" },
+        { name: "Scientist", level: "L-11" },
+        { name: "Senior Scientist", level: "L-12" },
+        { name: "Principal Scientist", level: "L-13" },
+        { name: "Senior Principal Scientist", level: "L-13A" },
+        { name: "Chief Scientist", level: "L-14" }
     ],
     "Group III": [
-        "Technical Assistant - PayLevel 6",
-        "Technical Officer - PayLevel 7",
-        "Senior Technical Officer 1 - PayLevel 10",
-        "Senior Technical Officer 2 - PayLevel 11",
-        "Senior Technical Officer 3 - PayLevel 12",
-        "Principal Technical Officer - PayLevel 13"
+        { name: "Technical Assistant", level: "L-6" },
+        { name: "Technical Officer", level: "L-7" },
+        { name: "Senior Technical Officer 1", level: "L-10" },
+        { name: "Senior Technical Officer 2", level: "L-11" },
+        { name: "Senior Technical Officer 3", level: "L-12" },
+        { name: "Principal Technical Officer", level: "L-13" }
     ],
     "Group II": [
-        "Technical 1 - PayLevel 2",
-        "Technical 2 - PayLevel 5",
-        "Senior Technical 1 - PayLevel 6",
-        "Senior Technical 2 - PayLevel 7",
-        "Senior Technical 3 - PayLevel 8"
+        { name: "Technical 1", level: "L-2" },
+        { name: "Technical 2", level: "L-5" },
+        { name: "Senior Technical 1", level: "L-6" },
+        { name: "Senior Technical 2", level: "L-7" },
+        { name: "Senior Technical 3", level: "L-8" }
     ],
     "Group I": [
-        "Lab. Attendant 1 - PayLevel 1",
-        "Lab. Attendant 2 - PayLevel 2",
-        "Lab. Assistant - PayLevel 5"
+        { name: "Lab. Attendant 1", level: "L-1" },
+        { name: "Lab. Attendant 2", level: "L-2" },
+        { name: "Lab. Assistant", level: "L-5" }
     ],
-    "N/A": ["N/A"]
+    "N/A": [
+        { name: "N/A", level: "N/A" }
+    ]
 };
+
+// Helper: get level from designation name and group
+export function getLevel(group, designationName) {
+    const designations = DESIGNATIONS_BY_GROUP[group] || [];
+    const match = designations.find(d => d.name === designationName);
+    return match ? match.level : "N/A";
+}
+
+// Default data fields for a new entry (table input columns)
+export function createDefaultDataFields() {
+    return {
+        // In Position
+        male: 0,
+        female: 0,
+        other: 0,
+
+        // Category (In Position)
+        sc: 0,
+        st: 0,
+        obc: 0,
+        ews: 0,
+        gen: 0,
+
+        // PWD (In Position)
+        oh: 0,
+        hh: 0,
+        vh: 0,
+        dbe: 0,
+
+        // Others
+        exServiceMan: 0,
+        minorityCommunity: 0
+    };
+}

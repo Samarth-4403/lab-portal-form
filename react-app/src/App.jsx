@@ -2,6 +2,7 @@ import { useState } from 'react';
 import LabTable from './components/LabTable';
 import EntryAdditionSection from './components/EntryAdditionSection';
 import PreviewSection from './components/PreviewSection';
+import { createDefaultDataFields } from './constants';
 
 function App() {
   const [entries, setEntries] = useState([]);
@@ -9,36 +10,26 @@ function App() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Add a new entry
   const handleAddEntry = (selection) => {
     const newEntry = {
       ...selection,
-      advertisedPosts: 0,
-      screenedPosts: 0,
-      publishedPosts: 0,
-      interviewedPosts: 0,
-      yetToBeEndorsedPosts: 0,
-      endorsedPosts: 0,
-      appointmentOffers: 0
+      ...createDefaultDataFields()
     };
     setEntries([...entries, newEntry]);
     setErrorMsg('');
   };
 
-  // Remove last entry
   const handleRemoveLastEntry = () => {
     if (entries.length === 0) return;
     setEntries(entries.slice(0, -1));
   };
 
-  // Handle entry input change
   const handleEntryChange = (index, field, value) => {
     const newEntries = [...entries];
     newEntries[index] = { ...newEntries[index], [field]: value };
     setEntries(newEntries);
   };
 
-  // Validate and show preview
   const handleShowPreview = () => {
     setErrorMsg('');
     if (entries.length === 0) {
@@ -49,7 +40,6 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Final Submit
   const handleFinalSubmit = (data) => {
     const savedData = {
       entries: data,
@@ -64,8 +54,8 @@ function App() {
     <>
       <div className="pag-styled-container">
         <h1>
-          Lab Recruitment Data Collection Form
-          <br /><span>Recruitment Status Tracking</span>
+          Annexure - A
+          <br /><span>CSIR Lab Manpower Information</span>
         </h1>
 
         {!isPreviewMode && !showSuccess && (
@@ -84,7 +74,7 @@ function App() {
                 entryCount={entries.length}
               />
 
-              <div className="section-title">Lab Recruitment Information</div>
+              <div className="section-title">Manpower Data (Annexure - A)</div>
               <LabTable 
                 entries={entries} 
                 onEntryChange={handleEntryChange} 
@@ -130,7 +120,7 @@ function App() {
                 </p>
               </div>
               <p style={{ color: '#64748b', margin: '0.5rem 0', textAlign: 'center', fontSize: '0.9rem' }}>
-                Your lab recruitment data has been saved and will be processed shortly.
+                Your manpower data has been saved and will be processed shortly.
               </p>
               <div style={{ 
                 marginTop: '1.5rem', padding: '1.25rem', 
