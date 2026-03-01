@@ -1,7 +1,7 @@
 // Summary Page JavaScript
 
 // List of all CSIR labs (must match form.js)
-const ALL_LABS_COUNT = 39; 
+const ALL_LABS_COUNT = 39;
 
 // Data structure to store form data
 let formData = {
@@ -11,7 +11,7 @@ let formData = {
 /**
  * Initialize the summary page
  */
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   loadFormData();
   if (formData.labs.length === 0) {
     showNoDataAlert();
@@ -49,16 +49,16 @@ function showNoDataAlert() {
 function calculateAndDisplaySummary() {
   // Calculate totals
   const totals = calculateTotals();
-  
+
   // Display summary cards
   displaySummaryCards(totals);
-  
+
   // Display lab-wise breakdown
   displayLabWiseBreakdown(totals);
-  
+
   // Display detailed breakdown
   displayDetailedBreakdown();
-  
+
   // Display stage-wise summary
   displayStageSummary(totals);
 }
@@ -87,56 +87,29 @@ function calculateTotals() {
   // Count unique labs that submitted data
   const uniqueLabs = new Set();
 
-  formData.labs.forEach(lab => {
-    const labName = lab.labName;
+  // Process each entry (new structure: entries array)
+  const entries = parsedData.entries || [];
+  entries.forEach(entry => {
+    const labName = entry.lab;
     uniqueLabs.add(labName);
-    
+
     // Initialize lab totals
     if (!totals.labTotals[labName]) {
-      totals.labTotals[labName] = {
-        l11: 0,
-        l12: 0,
-        l13: 0,
-        total: 0
-      };
+      totals.labTotals[labName] = { l11: 0, l12: 0, l13: 0, total: 0 };
     }
 
-    // Process each designation row
-    lab.designations.forEach(designation => {
-      const desigName = designation.designation;
-      
-      // Sum all columns for this row
-      const rowTotal = 
-        parseInt(designation.advertisedPosts || 0) +
-        parseInt(designation.screenedPosts || 0) +
-        parseInt(designation.publishedPosts || 0) +
-        parseInt(designation.interviewedPosts || 0) +
-        parseInt(designation.endorsedPosts || 0) +
-        parseInt(designation.appointmentOffers || 0);
+    const getMfoSum = (cat) => (entry[cat]?.m || 0) + (entry[cat]?.f || 0) + (entry[cat]?.o || 0);
 
-      // Add to appropriate designation total
-      if (desigName === 'Scientist L-11') {
-        totals.l11Total += rowTotal;
-        totals.labTotals[labName].l11 = rowTotal;
-      } else if (desigName === 'Scientist L-12') {
-        totals.l12Total += rowTotal;
-        totals.labTotals[labName].l12 = rowTotal;
-      } else if (desigName === 'Scientist L-13') {
-        totals.l13Total += rowTotal;
-        totals.labTotals[labName].l13 = rowTotal;
-      }
+    // In the new form, we have various categories (gen, sc, etc.)
+    const rowTotal = ['gen', 'sc', 'st', 'obc', 'ews'].reduce((sum, cat) => sum + getMfoSum(cat), 0);
 
-      // Add to lab total
-      totals.labTotals[labName].total += rowTotal;
+    // Map basic levels for the summary cards if possible
+    if (entry.level === 'L-11') totals.l11Total += rowTotal;
+    else if (entry.level === 'L-12') totals.l12Total += rowTotal;
+    else if (entry.level === 'L-13') totals.l13Total += rowTotal;
 
-      // Add to stage totals
-      totals.stageTotals.advertised += parseInt(designation.advertisedPosts || 0);
-      totals.stageTotals.screened += parseInt(designation.screenedPosts || 0);
-      totals.stageTotals.published += parseInt(designation.publishedPosts || 0);
-      totals.stageTotals.interviewed += parseInt(designation.interviewedPosts || 0);
-      totals.stageTotals.endorsed += parseInt(designation.endorsedPosts || 0);
-      totals.stageTotals.offers += parseInt(designation.appointmentOffers || 0);
-    });
+    totals.labTotals[labName].total += rowTotal;
+    totals.grandTotal += rowTotal;
   });
 
   totals.labsSubmitted = uniqueLabs.size;
@@ -171,7 +144,7 @@ function displayLabWiseBreakdown(totals) {
 
   sortedLabNames.forEach(labName => {
     const labData = totals.labTotals[labName];
-    
+
     const row = document.createElement('tr');
     row.innerHTML = `
       <td>${serialNo}</td>
@@ -181,7 +154,7 @@ function displayLabWiseBreakdown(totals) {
       <td class="designation-col">${labData.l13.toLocaleString()}</td>
       <td class="total-col">${labData.total.toLocaleString()}</td>
     `;
-    
+
     tbody.appendChild(row);
     serialNo++;
   });
@@ -204,19 +177,19 @@ function displayDetailedBreakdown() {
 
   formData.labs.forEach(lab => {
     const labName = lab.labName;
-    
+
     lab.designations.forEach((designation, index) => {
       const row = document.createElement('tr');
-      
+
       // Only show serial number and lab name for first row of each lab (with rowspan)
-      const serialCell = index === 0 
+      const serialCell = index === 0
         ? `<td rowspan="3" style="text-align: center; vertical-align: middle; font-weight: 600; background-color: #f9fafb;">${serialNo}</td>`
         : '';
-      
+
       const labCell = index === 0
         ? `<td rowspan="3" style="vertical-align: middle; font-weight: 600; background-color: #f9fafb;">${labName}</td>`
         : '';
-      
+
       row.innerHTML = `
         ${serialCell}
         ${labCell}
@@ -228,10 +201,10 @@ function displayDetailedBreakdown() {
         <td class="stage-col">${parseInt(designation.endorsedPosts || 0).toLocaleString()}</td>
         <td class="stage-col">${parseInt(designation.appointmentOffers || 0).toLocaleString()}</td>
       `;
-      
+
       tbody.appendChild(row);
     });
-    
+
     serialNo++;
   });
 }

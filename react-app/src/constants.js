@@ -101,27 +101,24 @@ export function getLevel(group, designationName) {
 
 // Default data fields for a new entry (table input columns)
 export function createDefaultDataFields() {
+    const emptyMfo = () => ({ m: 0, f: 0, o: 0 });
+    
     return {
-        // In Position
-        male: 0,
-        female: 0,
-        other: 0,
-
-        // Category (In Position)
-        sc: 0,
-        st: 0,
-        obc: 0,
-        ews: 0,
-        gen: 0,
-
-        // PWD (In Position)
-        oh: 0,
-        hh: 0,
-        vh: 0,
-        dbe: 0,
+        // Categories with nested M/F/O
+        gen: emptyMfo(),
+        sc: emptyMfo(),
+        st: emptyMfo(),
+        obc: emptyMfo(),
+        ews: emptyMfo(),
+        
+        // PWD with nested M/F/O
+        oh: emptyMfo(),
+        hh: emptyMfo(),
+        vh: emptyMfo(),
+        dbe: emptyMfo(),
 
         // Others
-        exServiceMan: 0,
-        minorityCommunity: 0
+        exServiceMan: emptyMfo(),
+        minorityCommunity: emptyMfo()
     };
 }
