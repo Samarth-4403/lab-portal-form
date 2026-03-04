@@ -37,7 +37,9 @@ function renderSummary() {
 }
 
 function calculateTotals() {
-  const fields = ['pip','male','female','other','gen','sc','st','obc','ews','oh','hh','vh','dbe','exServiceMan','minorityCommunity'];
+  const categories = ['gen', 'sc', 'st', 'obc', 'ews'];
+  const pwdFields = ['oh', 'hh', 'vh', 'dbe'];
+  const otherFields = ['exServiceMan', 'minorityCommunity'];
 
   const totals = {
     totalPIP: 0,
@@ -47,18 +49,44 @@ function calculateTotals() {
   };
 
   entries.forEach(e => {
-    totals.totalPIP += e.pip || 0;
+    totals.totalPIP += (e.pip || 0);
     totals.uniqueLabs.add(e.lab);
 
     const group = e.group || 'N/A';
     if (!totals.byGroup[group]) {
-      const obj = { count: 0 };
-      fields.forEach(f => obj[f] = 0);
-      totals.byGroup[group] = obj;
+      totals.byGroup[group] = {
+        count: 0,
+        pip: 0,
+        male: 0,
+        female: 0,
+        other: 0,
+        gen: 0, sc: 0, st: 0, obc: 0, ews: 0,
+        oh: 0, hh: 0, vh: 0, dbe: 0,
+        exServiceMan: 0,
+        minorityCommunity: 0
+      };
     }
     const g = totals.byGroup[group];
     g.count++;
-    fields.forEach(f => g[f] += (e[f] || 0));
+    g.pip += (e.pip || 0);
+
+    // Sum nested m,f,o values for categories
+    categories.concat(pwdFields).concat(otherFields).forEach(field => {
+      const val = e[field] || { m:0, f:0, o:0 };
+      const m = (val.m || 0);
+      const f = (val.f || 0);
+      const o = (val.o || 0);
+      
+      // Update gender totals
+      g.male += m;
+      g.female += f;
+      g.other += o;
+
+      // Update specific category/field totals (sum of m+f+o)
+      if (g.hasOwnProperty(field)) {
+        g[field] += (m + f + o);
+      }
+    });
   });
 
   return totals;
