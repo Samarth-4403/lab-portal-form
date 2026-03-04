@@ -1,8 +1,8 @@
 import React from 'react';
 import EntryRow from './EntryRow';
 
-export default function LabTable({ entries, onChange }) {
-    const colCount = 21;
+export default function LabTable({ entries, onChange, onRemove }) {
+    const colCount = 22;
 
     return (
         <div className="manpower-data-section">
@@ -14,6 +14,7 @@ export default function LabTable({ entries, onChange }) {
                             <th rowSpan="2" className="col-lab">Lab</th>
                             <th rowSpan="2" className="col-grp">Grp</th>
                             <th rowSpan="2" className="col-post">Post Name</th>
+                            <th rowSpan="2" className="col-subgrp">Sub Group</th>
                             <th rowSpan="2" className="col-level nowrap-th">Level</th>
                             <th rowSpan="2" className="col-pip">PIP</th>
                             <th rowSpan="2" className="col-sex">In Position</th>
@@ -48,6 +49,7 @@ export default function LabTable({ entries, onChange }) {
                                     entry={entry}
                                     index={index}
                                     onChange={onChange}
+                                    onRemove={onRemove}
                                 />
                             ))
                         )}

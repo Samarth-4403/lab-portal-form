@@ -1,20 +1,24 @@
 import React from 'react';
 
-export default function EntryRow({ entry, index, onChange }) {
-    const handleInput = (category, subfield, value) => {
-        const numValue = Math.max(0, parseInt(value) || 0);
-        const updatedCategory = { ...entry[category], [subfield]: numValue };
-        onChange(index, category, updatedCategory);
+export default function EntryRow({ entry, index, onChange, onRemove }) {
+    const handleInput = (cat, field, value) => {
+        const numVal = parseInt(value) || 0;
+        const currentData = entry[cat] || { m: 0, f: 0, o: 0 };
+        onChange(index, cat, { ...currentData, [field]: numVal });
     };
 
     const sexOptions = [
-        { key: 'm', label: 'M' },
-        { key: 'f', label: 'F' },
-        { key: 'o', label: 'O' }
+        { label: 'Male', key: 'm' },
+        { label: 'Female', key: 'f' },
+        { label: 'Other', key: 'o' }
     ];
 
     const getSexTotal = (sexKey) => {
-        return ['gen', 'sc', 'st', 'obc', 'ews', 'oh', 'hh', 'vh', 'dbe', 'exServiceMan', 'minorityCommunity'].reduce((sum, cat) => sum + (entry[cat]?.[sexKey] || 0), 0);
+        return (entry.gen[sexKey] || 0) +
+            (entry.sc[sexKey] || 0) +
+            (entry.st[sexKey] || 0) +
+            (entry.obc[sexKey] || 0) +
+            (entry.ews[sexKey] || 0);
     };
 
     const inPositionTotal = sexOptions.reduce((sum, sex) => sum + getSexTotal(sex.key), 0);
@@ -42,10 +46,23 @@ export default function EntryRow({ entry, index, onChange }) {
         <>
             {/* First row with rowSpan */}
             <tr className={pipExceeded ? 'row-warning' : ''}>
-                <td rowSpan="3" className="serial-number">{index + 1}</td>
+                <td rowSpan="3" className="serial-number">
+                    <div className="sno-container">
+                        <button
+                            type="button"
+                            className="row-remove-btn"
+                            onClick={() => onRemove(index)}
+                            title="Remove this entry"
+                        >
+                            &minus;
+                        </button>
+                        <span>{index + 1}</span>
+                    </div>
+                </td>
                 <td rowSpan="3" className="dim-cell dim-cell-lab">{entry.lab}</td>
                 <td rowSpan="3" className="dim-cell">{entry.group}</td>
                 <td rowSpan="3" className="dim-cell">{entry.designation}</td>
+                <td rowSpan="3" className="dim-cell">{entry.subGroup || 'N/A'}</td>
                 <td rowSpan="3" className="dim-cell" style={{ fontWeight: 600, color: '#667eea', textAlign: 'center' }}>{entry.level}</td>
                 <td rowSpan="3" className="preset-cell">{entry.pip}</td>
                 <td className="sex-label-cell">Male</td>

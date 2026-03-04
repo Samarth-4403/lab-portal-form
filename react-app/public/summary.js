@@ -72,11 +72,11 @@ function calculateTotals() {
 
     // Sum nested m,f,o values for categories
     categories.concat(pwdFields).concat(otherFields).forEach(field => {
-      const val = e[field] || { m:0, f:0, o:0 };
+      const val = e[field] || { m: 0, f: 0, o: 0 };
       const m = (val.m || 0);
       const f = (val.f || 0);
       const o = (val.o || 0);
-      
+
       // Update gender totals
       g.male += m;
       g.female += f;
@@ -102,16 +102,24 @@ function displayGroupSummary(totals) {
   const container = document.getElementById('groupSummaryCards');
   container.innerHTML = '';
 
-  const groupOrder = ['Group IV', 'Group III', 'Group II', 'Group I', 'N/A'];
+  // Dynamically get all groups present in the data
+  const groupsToDisplay = Object.keys(totals.byGroup).sort();
+
   const colors = {
     'Group IV': '#4f46e5',
     'Group III': '#0891b2',
     'Group II': '#059669',
     'Group I': '#d97706',
+    'General Cadre: CCO & Non-CCO': '#7c3aed',
+    'F&A Cadre: CCO & Non-CCO': '#db2777',
+    'S&P Cadre: CCO & Non-CCO': '#ea580c',
+    'Stenographic Cadre: CCO & Non-CCO': '#dc2626',
+    'MTS': '#4b5563',
+    'Canteen': '#92400e',
     'N/A': '#6b7280'
   };
 
-  groupOrder.forEach(group => {
+  groupsToDisplay.forEach(group => {
     const d = totals.byGroup[group];
     if (!d) return;
 
@@ -121,7 +129,7 @@ function displayGroupSummary(totals) {
 
     const card = document.createElement('div');
     card.className = 'group-detail-card';
-    card.style.borderTop = `4px solid ${colors[group] || '#6b7280'}`;
+    card.style.borderTop = `4px solid ${colors[group] || '#6366f1'}`;
     card.innerHTML = `
       <div class="gd-header">
         <h3>${group}</h3>
@@ -129,12 +137,12 @@ function displayGroupSummary(totals) {
       </div>
 
       <div class="gd-pip-row">
-        <span class="gd-pip-label">PIP (Persons In Position)</span>
+        <span class="gd-pip-label">Sanctioned Strength (PIP)</span>
         <span class="gd-pip-value">${d.pip}</span>
       </div>
 
       <div class="gd-section">
-        <div class="gd-section-title">In Position <span class="gd-section-total">${inPosTotal}</span></div>
+        <div class="gd-section-title">Actual In Position <span class="gd-section-total">${inPosTotal}</span></div>
         <div class="gd-grid gd-grid-3">
           <div class="gd-item"><span class="gd-label">Male</span><span class="gd-val">${d.male}</span></div>
           <div class="gd-item"><span class="gd-label">Female</span><span class="gd-val">${d.female}</span></div>
@@ -143,7 +151,7 @@ function displayGroupSummary(totals) {
       </div>
 
       <div class="gd-section">
-        <div class="gd-section-title">Category <span class="gd-section-total">${catTotal}</span></div>
+        <div class="gd-section-title">Category Breakdown <span class="gd-section-total">${catTotal}</span></div>
         <div class="gd-grid gd-grid-5">
           <div class="gd-item"><span class="gd-label">Gen</span><span class="gd-val">${d.gen}</span></div>
           <div class="gd-item"><span class="gd-label">SC</span><span class="gd-val">${d.sc}</span></div>
@@ -154,7 +162,7 @@ function displayGroupSummary(totals) {
       </div>
 
       <div class="gd-section">
-        <div class="gd-section-title">PWD <span class="gd-section-total">${pwdTotal}</span></div>
+        <div class="gd-section-title">PWD Breakdown <span class="gd-section-total">${pwdTotal}</span></div>
         <div class="gd-grid gd-grid-4">
           <div class="gd-item"><span class="gd-label">OH</span><span class="gd-val">${d.oh}</span></div>
           <div class="gd-item"><span class="gd-label">HH</span><span class="gd-val">${d.hh}</span></div>

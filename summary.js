@@ -1,236 +1,222 @@
-// Summary Page JavaScript
+/**
+ * Lab Manpower Information
+ * Summary Page Logic
+ */
 
-// List of all CSIR labs (must match form.js)
-const ALL_LABS_COUNT = 39;
-
-// Data structure to store form data
-let formData = {
-  labs: []
+let summaryData = {
+  entries: [],
+  totals: {
+    pip: 0,
+    inPosition: 0,
+    dept: {
+      Scientific: 0,
+      Technical: 0,
+      Administration: 0,
+      Isolated: 0
+    },
+    group: {}, // New: map for group-wise totals
+    category: {
+      gen: { m: 0, f: 0, o: 0 },
+      sc: { m: 0, f: 0, o: 0 },
+      st: { m: 0, f: 0, o: 0 },
+      obc: { m: 0, f: 0, o: 0 },
+      ews: { m: 0, f: 0, o: 0 }
+    }
+  }
 };
 
-/**
- * Initialize the summary page
- */
-document.addEventListener('DOMContentLoaded', function () {
-  loadFormData();
-  if (formData.labs.length === 0) {
-    showNoDataAlert();
-  } else {
-    calculateAndDisplaySummary();
-  }
+document.addEventListener('DOMContentLoaded', () => {
+  initSummary();
 });
 
-/**
- * Load form data from localStorage
- */
-function loadFormData() {
+function initSummary() {
+  const rawData = localStorage.getItem('recruitmentFormData');
+  if (!rawData) {
+    showNoData();
+    return;
+  }
+
   try {
-    const kdData = localStorage.getItem('recruitmentFormData');
-    if (savedData) {
-      const parsedData = JSON.parse(savedData);
-      formData.labs = parsedData.labs || [];
+    const parsed = JSON.parse(rawData);
+    summaryData.entries = parsed.entries || [];
+
+    if (summaryData.entries.length === 0) {
+      showNoData();
+      return;
     }
-  } catch (error) {
-    console.error('Error loading form data:', error);
+
+    calculateTotals();
+    renderSummary();
+  } catch (e) {
+    console.error("Error parsing summary data", e);
+    showNoData();
   }
 }
 
-/**
- * Show alert when no data is available
- */
-function showNoDataAlert() {
-  document.getElementById('noDataAlert').style.display = 'flex';
+function showNoData() {
+  document.getElementById('noDataAlert').style.display = 'block';
   document.getElementById('summaryCards').style.display = 'none';
 }
 
-/**
- * Calculate and display all summary data
- */
-function calculateAndDisplaySummary() {
-  // Calculate totals
-  const totals = calculateTotals();
-
-  // Display summary cards
-  displaySummaryCards(totals);
-
-  // Display lab-wise breakdown
-  displayLabWiseBreakdown(totals);
-
-  // Display detailed breakdown
-  displayDetailedBreakdown();
-
-  // Display stage-wise summary
-  displayStageSummary(totals);
-}
-
-/**
- * Calculate all totals from form data
- */
 function calculateTotals() {
-  const totals = {
-    grandTotal: 0,
-    l11Total: 0,
-    l12Total: 0,
-    l13Total: 0,
-    labsSubmitted: 0,
-    labTotals: {},
-    stageTotals: {
-      advertised: 0,
-      screened: 0,
-      published: 0,
-      interviewed: 0,
-      endorsed: 0,
-      offers: 0
+  summaryData.entries.forEach(entry => {
+    // PIP
+    summaryData.totals.pip += (entry.pip || 0);
+
+    // Group-wise initialization
+    if (!summaryData.totals.group[entry.group]) {
+      summaryData.totals.group[entry.group] = { pip: 0, inPosition: 0 };
     }
-  };
+    summaryData.totals.group[entry.group].pip += (entry.pip || 0);
 
-  // Count unique labs that submitted data
-  const uniqueLabs = new Set();
+    // Departmental / Row Totals
+    const rowTotal = getRowTotal(entry);
+    summaryData.totals.inPosition += rowTotal;
+    summaryData.totals.group[entry.group].inPosition += rowTotal;
 
-  // Process each entry (new structure: entries array)
-  const entries = parsedData.entries || [];
-  entries.forEach(entry => {
-    const labName = entry.lab;
-    uniqueLabs.add(labName);
-
-    // Initialize lab totals
-    if (!totals.labTotals[labName]) {
-      totals.labTotals[labName] = { l11: 0, l12: 0, l13: 0, total: 0 };
+    if (summaryData.totals.dept.hasOwnProperty(entry.dept)) {
+      summaryData.totals.dept[entry.dept] += rowTotal;
     }
 
-    const getMfoSum = (cat) => (entry[cat]?.m || 0) + (entry[cat]?.f || 0) + (entry[cat]?.o || 0);
-
-    // In the new form, we have various categories (gen, sc, etc.)
-    const rowTotal = ['gen', 'sc', 'st', 'obc', 'ews'].reduce((sum, cat) => sum + getMfoSum(cat), 0);
-
-    // Map basic levels for the summary cards if possible
-    if (entry.level === 'L-11') totals.l11Total += rowTotal;
-    else if (entry.level === 'L-12') totals.l12Total += rowTotal;
-    else if (entry.level === 'L-13') totals.l13Total += rowTotal;
-
-    totals.labTotals[labName].total += rowTotal;
-    totals.grandTotal += rowTotal;
-  });
-
-  totals.labsSubmitted = uniqueLabs.size;
-  // Calculate grand total
-  totals.grandTotal = totals.l11Total + totals.l12Total + totals.l13Total;
-
-  return totals;
-}
-
-/**
- * Display summary cards
- */
-function displaySummaryCards(totals) {
-  document.getElementById('grandTotalValue').textContent = totals.grandTotal.toLocaleString();
-  document.getElementById('l11TotalValue').textContent = totals.l11Total.toLocaleString();
-  document.getElementById('l12TotalValue').textContent = totals.l12Total.toLocaleString();
-  document.getElementById('l13TotalValue').textContent = totals.l13Total.toLocaleString();
-  document.getElementById('labParticipationValue').textContent = `${totals.labsSubmitted} / ${ALL_LABS_COUNT}`;
-}
-
-/**
- * Display lab-wise breakdown table
- */
-function displayLabWiseBreakdown(totals) {
-  const tbody = document.getElementById('labWiseTableBody');
-  tbody.innerHTML = '';
-
-  let serialNo = 1;
-
-  // Sort labs alphabetically
-  const sortedLabNames = Object.keys(totals.labTotals).sort();
-
-  sortedLabNames.forEach(labName => {
-    const labData = totals.labTotals[labName];
-
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${serialNo}</td>
-      <td style="font-weight: 600; color: #1f2937;">${labName}</td>
-      <td class="designation-col">${labData.l11.toLocaleString()}</td>
-      <td class="designation-col">${labData.l12.toLocaleString()}</td>
-      <td class="designation-col">${labData.l13.toLocaleString()}</td>
-      <td class="total-col">${labData.total.toLocaleString()}</td>
-    `;
-
-    tbody.appendChild(row);
-    serialNo++;
-  });
-
-  // Update footer totals
-  document.getElementById('footerL11Total').textContent = totals.l11Total.toLocaleString();
-  document.getElementById('footerL12Total').textContent = totals.l12Total.toLocaleString();
-  document.getElementById('footerL13Total').textContent = totals.l13Total.toLocaleString();
-  document.getElementById('footerGrandTotal').textContent = totals.grandTotal.toLocaleString();
-}
-
-/**
- * Display detailed stage-wise breakdown
- */
-function displayDetailedBreakdown() {
-  const tbody = document.getElementById('detailedTableBody');
-  tbody.innerHTML = '';
-
-  let serialNo = 1;
-
-  formData.labs.forEach(lab => {
-    const labName = lab.labName;
-
-    lab.designations.forEach((designation, index) => {
-      const row = document.createElement('tr');
-
-      // Only show serial number and lab name for first row of each lab (with rowspan)
-      const serialCell = index === 0
-        ? `<td rowspan="3" style="text-align: center; vertical-align: middle; font-weight: 600; background-color: #f9fafb;">${serialNo}</td>`
-        : '';
-
-      const labCell = index === 0
-        ? `<td rowspan="3" style="vertical-align: middle; font-weight: 600; background-color: #f9fafb;">${labName}</td>`
-        : '';
-
-      row.innerHTML = `
-        ${serialCell}
-        ${labCell}
-        <td class="summary-designation">${designation.designation}</td>
-        <td class="stage-col">${parseInt(designation.advertisedPosts || 0).toLocaleString()}</td>
-        <td class="stage-col">${parseInt(designation.screenedPosts || 0).toLocaleString()}</td>
-        <td class="stage-col">${parseInt(designation.publishedPosts || 0).toLocaleString()}</td>
-        <td class="stage-col">${parseInt(designation.interviewedPosts || 0).toLocaleString()}</td>
-        <td class="stage-col">${parseInt(designation.endorsedPosts || 0).toLocaleString()}</td>
-        <td class="stage-col">${parseInt(designation.appointmentOffers || 0).toLocaleString()}</td>
-      `;
-
-      tbody.appendChild(row);
+    // Category Breakdown (including PWD, Ex-Svc, Minority)
+    ['gen', 'sc', 'st', 'obc', 'ews', 'oh', 'hh', 'vh', 'dbe', 'exServiceMan', 'minorityCommunity'].forEach(cat => {
+      if (!summaryData.totals.category[cat]) {
+        summaryData.totals.category[cat] = { m: 0, f: 0, o: 0 };
+      }
+      summaryData.totals.category[cat].m += (entry[cat]?.m || 0);
+      summaryData.totals.category[cat].f += (entry[cat]?.f || 0);
+      summaryData.totals.category[cat].o += (entry[cat]?.o || 0);
     });
-
-    serialNo++;
   });
 }
 
-/**
- * Display stage-wise summary
- */
-function displayStageSummary(totals) {
-  document.getElementById('stageAdvertised').textContent = totals.stageTotals.advertised.toLocaleString();
-  document.getElementById('stageScreened').textContent = totals.stageTotals.screened.toLocaleString();
-  document.getElementById('stagePublished').textContent = totals.stageTotals.published.toLocaleString();
-  document.getElementById('stageInterviewed').textContent = totals.stageTotals.interviewed.toLocaleString();
-  document.getElementById('stageEndorsed').textContent = totals.stageTotals.endorsed.toLocaleString();
-  document.getElementById('stageOffers').textContent = totals.stageTotals.offers.toLocaleString();
+function getRowTotal(entry) {
+  const categories = ['gen', 'sc', 'st', 'obc', 'ews'];
+  return categories.reduce((sum, cat) => {
+    return sum + (entry[cat]?.m || 0) + (entry[cat]?.f || 0) + (entry[cat]?.o || 0);
+  }, 0);
 }
 
-/**
- * Navigate back to the form
- */
-function goBackToForm() {
-  window.location.href = 'index.html';
+function renderSummary() {
+  // Basic Cards
+  document.getElementById('totalPipValue').textContent = summaryData.totals.pip;
+  document.getElementById('inPositionValue').textContent = summaryData.totals.inPosition;
+
+  const labs = new Set(summaryData.entries.map(e => e.lab));
+  document.getElementById('labParticipationValue').textContent = `${labs.size} Submitted`;
+
+  // Dept Values
+  document.getElementById('deptSciValue').textContent = summaryData.totals.dept.Scientific;
+  document.getElementById('deptTechValue').textContent = summaryData.totals.dept.Technical;
+  document.getElementById('deptAdminValue').textContent = summaryData.totals.dept.Administration;
+  document.getElementById('deptIsoValue').textContent = summaryData.totals.dept.Isolated;
+
+  // Group Summary Table
+  const groupBody = document.getElementById('groupSummaryTableBody');
+  groupBody.innerHTML = '';
+  Object.keys(summaryData.totals.group).sort().forEach(groupName => {
+    const data = summaryData.totals.group[groupName];
+    const util = data.pip > 0 ? ((data.inPosition / data.pip) * 100).toFixed(1) : '0.0';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+            <td style="text-align: left; font-weight: 600;">${groupName}</td>
+            <td class="total-col">${data.pip}</td>
+            <td class="total-col" style="background-color: #f0fdf4">${data.inPosition}</td>
+            <td style="font-weight: 700; color: #2563eb">${util}%</td>
+        `;
+    groupBody.appendChild(tr);
+  });
+
+  // Category Table
+  const catBody = document.getElementById('categoryTableBody');
+  catBody.innerHTML = '';
+
+  const displayCats = [
+    { key: 'gen', label: 'General' },
+    { key: 'sc', label: 'SC' },
+    { key: 'st', label: 'ST' },
+    { key: 'obc', label: 'OBC' },
+    { key: 'ews', label: 'EWS' },
+    { key: 'divider', label: '---' },
+    { key: 'oh', label: 'PWD - OH' },
+    { key: 'hh', label: 'PWD - HH' },
+    { key: 'vh', label: 'PWD - VH' },
+    { key: 'dbe', label: 'PWD - dBe' },
+    { key: 'pwd_total', label: 'Total PWD' },
+    { key: 'divider_2', label: '---' },
+    { key: 'exServiceMan', label: 'Ex-Service Man' },
+    { key: 'minorityCommunity', label: 'Minority Community' }
+  ];
+
+  displayCats.forEach(item => {
+    if (item.key.startsWith('divider')) {
+      catBody.insertAdjacentHTML('beforeend', '<tr style="background:#f1f5f9; height: 4px;"><td colspan="5" style="padding:0"></td></tr>');
+      return;
+    }
+
+    let data;
+    if (item.key === 'pwd_total') {
+      data = {
+        m: (summaryData.totals.category.oh?.m || 0) + (summaryData.totals.category.hh?.m || 0) + (summaryData.totals.category.vh?.m || 0) + (summaryData.totals.category.dbe?.m || 0),
+        f: (summaryData.totals.category.oh?.f || 0) + (summaryData.totals.category.hh?.f || 0) + (summaryData.totals.category.vh?.f || 0) + (summaryData.totals.category.dbe?.f || 0),
+        o: (summaryData.totals.category.oh?.o || 0) + (summaryData.totals.category.hh?.o || 0) + (summaryData.totals.category.vh?.o || 0) + (summaryData.totals.category.dbe?.o || 0)
+      };
+    } else {
+      data = summaryData.totals.category[item.key] || { m: 0, f: 0, o: 0 };
+    }
+
+    const total = data.m + data.f + data.o;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+            <td style="text-transform: capitalize; font-weight: 600;">${item.label}</td>
+            <td>${data.m}</td>
+            <td>${data.f}</td>
+            <td>${data.o}</td>
+            <td class="total-col">${total}</td>
+        `;
+    catBody.appendChild(tr);
+  });
+
+  // Detailed Table
+  const detBody = document.getElementById('detailedTableBody');
+  detBody.innerHTML = '';
+
+  summaryData.entries.forEach((entry, idx) => {
+    const m = ['gen', 'sc', 'st', 'obc', 'ews'].reduce((sum, cat) => sum + (entry[cat]?.m || 0), 0);
+    const f = ['gen', 'sc', 'st', 'obc', 'ews'].reduce((sum, cat) => sum + (entry[cat]?.f || 0), 0);
+    const o = ['gen', 'sc', 'st', 'obc', 'ews'].reduce((sum, cat) => sum + (entry[cat]?.o || 0), 0);
+    const rowTotal = m + f + o;
+
+    const pwdTotal = (entry.oh?.m || 0) + (entry.oh?.f || 0) + (entry.oh?.o || 0) +
+      (entry.hh?.m || 0) + (entry.hh?.f || 0) + (entry.hh?.o || 0) +
+      (entry.vh?.m || 0) + (entry.vh?.f || 0) + (entry.vh?.o || 0) +
+      (entry.dbe?.m || 0) + (entry.dbe?.f || 0) + (entry.dbe?.o || 0);
+
+    const exSvcTotal = (entry.exServiceMan?.m || 0) + (entry.exServiceMan?.f || 0) + (entry.exServiceMan?.o || 0);
+    const minorityTotal = (entry.minorityCommunity?.m || 0) + (entry.minorityCommunity?.f || 0) + (entry.minorityCommunity?.o || 0);
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+            <td>${idx + 1}</td>
+            <td style="font-weight: 600; text-align: left;">${entry.lab}</td>
+            <td>${entry.dept}</td>
+            <td>${entry.group}</td>
+            <td>${entry.subGroup || 'N/A'}</td>
+            <td style="text-align: left;">${entry.designation}</td>
+            <td style="font-weight: 600; color: #667eea">${entry.level}</td>
+            <td class="total-col" style="background-color: #f0fdf4">${entry.pip}</td>
+            <td>${m}</td>
+            <td>${f}</td>
+            <td>${o}</td>
+            <td>${pwdTotal}</td>
+            <td>${exSvcTotal}</td>
+            <td>${minorityTotal}</td>
+            <td class="total-col" style="background-color: #fefce8">${rowTotal}</td>
+        `;
+    detBody.appendChild(tr);
+  });
 }
 
-/**
- * Print the summary
- */
 function printSummary() {
   window.print();
 }

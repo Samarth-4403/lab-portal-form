@@ -17,6 +17,7 @@ export default function PreviewSection({ entries, onEdit, onSubmit }) {
                             <th rowSpan="2">Lab</th>
                             <th rowSpan="2">Group</th>
                             <th rowSpan="2">Post</th>
+                            <th rowSpan="2">Sub Group</th>
                             <th rowSpan="2">Level</th>
                             <th rowSpan="2">PIP</th>
                             <th rowSpan="2">In Position</th>
@@ -57,6 +58,7 @@ export default function PreviewSection({ entries, onEdit, onSubmit }) {
                                         <td rowSpan="3" style={{ fontWeight: 600, textAlign: 'left' }}>{entry.lab}</td>
                                         <td rowSpan="3">{entry.group}</td>
                                         <td rowSpan="3" style={{ textAlign: 'left' }}>{entry.designation}</td>
+                                        <td rowSpan="3">{entry.subGroup || 'N/A'}</td>
                                         <td rowSpan="3" style={{ color: '#667eea', fontWeight: 600 }}>{entry.level}</td>
                                         <td rowSpan="3" className="preset-cell">{entry.pip}</td>
                                         <td className="sex-label-cell">Male</td>

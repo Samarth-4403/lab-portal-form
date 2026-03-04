@@ -19,9 +19,8 @@ function App() {
     setErrorMsg('');
   };
 
-  const handleRemoveLastEntry = () => {
-    if (entries.length === 0) return;
-    setEntries(entries.slice(0, -1));
+  const handleRemoveEntry = (index) => {
+    setEntries(entries.filter((_, i) => i !== index));
   };
 
   const handleEntryChange = (index, field, value) => {
@@ -68,16 +67,16 @@ function App() {
               )}
 
               <div className="section-title">Selection Criteria</div>
-              <EntryAdditionSection 
-                onAdd={handleAddEntry} 
-                onRemoveLast={handleRemoveLastEntry}
+              <EntryAdditionSection
+                onAdd={handleAddEntry}
                 entryCount={entries.length}
               />
 
               <div className="section-title">Manpower Data (Annexure - A)</div>
-              <LabTable 
-                entries={entries} 
-                onEntryChange={handleEntryChange} 
+              <LabTable
+                entries={entries}
+                onChange={handleEntryChange}
+                onRemove={handleRemoveEntry}
               />
 
               <div className="btn-container">
@@ -90,10 +89,10 @@ function App() {
         )}
 
         {isPreviewMode && !showSuccess && (
-          <PreviewSection 
-            entries={entries} 
-            onEdit={() => setIsPreviewMode(false)} 
-            onSubmit={handleFinalSubmit} 
+          <PreviewSection
+            entries={entries}
+            onEdit={() => setIsPreviewMode(false)}
+            onSubmit={handleFinalSubmit}
           />
         )}
       </div>
@@ -107,9 +106,9 @@ function App() {
             </div>
             <div className="modal-body">
               <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                <div style={{ 
-                  width: '64px', height: '64px', borderRadius: '50%', 
-                  background: 'linear-gradient(135deg, #10b981, #059669)', 
+                <div style={{
+                  width: '64px', height: '64px', borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
                   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                   marginBottom: '1rem', boxShadow: '0 8px 20px rgba(16, 185, 129, 0.3)'
                 }}>
@@ -122,15 +121,15 @@ function App() {
               <p style={{ color: '#64748b', margin: '0.5rem 0', textAlign: 'center', fontSize: '0.9rem' }}>
                 Your manpower data has been saved and will be processed shortly.
               </p>
-              <div style={{ 
-                marginTop: '1.5rem', padding: '1.25rem', 
-                background: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)', 
-                borderRadius: '10px', border: '1px solid #c4b5fd', textAlign: 'center' 
+              <div style={{
+                marginTop: '1.5rem', padding: '1.25rem',
+                background: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)',
+                borderRadius: '10px', border: '1px solid #c4b5fd', textAlign: 'center'
               }}>
                 <p style={{ color: '#5b21b6', marginBottom: '0.75rem', fontWeight: 600, fontSize: '0.9rem' }}>
                   Would you like to see a summary of your data?
                 </p>
-                <a href="summary.html" className="btn-primary" style={{ 
+                <a href="summary.html" className="btn-primary" style={{
                   display: 'inline-block', textDecoration: 'none', padding: '0.6rem 1.5rem', fontSize: '0.85rem'
                 }}>
                   View Data Summary
